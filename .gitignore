@@ -1,0 +1,16 @@
+/frontend/
+/backend/
+/database/
+/ai-service/
+/infrastructure/
+/start-app.bat
+/start-app.ps1
+/.vscode/
+/.github/modernize/
+mobile/node_modules/
+mobile/.expo/
+mobile/dist/
+mobile/web-build/
+*.log
+*.tsbuildinfo
+.DS_Store
