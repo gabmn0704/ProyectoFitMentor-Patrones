@@ -1,0 +1,12 @@
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/gabmn0704/FITMENTOR-FRONT.git
+[submodule "backend"]
+	path = backend
+	url = https://github.com/gabmn0704/FITMENTOR-BACKEND.git
+[submodule "ai-service"]
+	path = ai-service
+	url = https://github.com/gabmn0704/FITMENTOR-IA.git
+[submodule "database"]
+	path = database
+	url = https://github.com/gabmn0704/FITMENTOR-BD.git

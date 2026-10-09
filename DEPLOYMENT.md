@@ -1,53 +1,47 @@
 # Deployment guide
 
-This project is configured for a 3-layer public deployment:
+This project is configured for a public deployment across independent service repositories:
 
-- Frontend: GitHub Pages
-- Backend: Render web service
-- AI analysis service: Render web service
-- Database: Render Postgres
+- Frontend: Netlify from `FITMENTOR-FRONT`
+- Backend and Postgres: Render Blueprint from `FITMENTOR-BACKEND`
+- AI analysis service: Render Blueprint from `FITMENTOR-IA`
 
-## 1. GitHub Pages
+## 1. Netlify frontend
 
-The workflow in `frontend/.github/workflows/pages.yml` builds the React app and publishes it to GitHub Pages.
+The `frontend/netlify.toml` file configures the build and SPA fallback.
 
 Required repository settings:
 
-1. Open the frontend repository on GitHub.
-2. Go to Settings > Pages.
-3. Set Source to GitHub Actions.
-4. Confirm the repository has the Pages deployment permission enabled.
-5. Push to `main` and wait for the workflow to complete.
+1. In Netlify, choose Add new site > Import an existing project.
+2. Select the `gabmn0704/FITMENTOR-FRONT` repository.
+3. Keep the build settings from `netlify.toml` (`npm run build`, publish `dist`).
+4. Deploy the site.
 
 The site will be published at:
 
-`https://<usuario>.github.io/FITMENTOR-FRONT/`
+`https://<nombre-del-sitio>.netlify.app/`
 
 ## 2. Render services
 
-Use the included `render.yaml` file to create the services in Render:
+Create the backend/database and AI services as separate Render Blueprints:
 
-1. Sign in to Render.
-2. Click "Blueprints" and import this repository.
-3. Select the `render.yaml` file.
-4. Review the generated services:
-   - `fitmentor-db`
-   - `fitmentor-ai`
-   - `fitmentor-backend`
-   - `fitmentor-frontend`
-5. Wait for all services to finish deployment.
+1. Import `gabmn0704/FITMENTOR-BACKEND` as a Blueprint; it contains `render.yaml` for the backend and Postgres.
+2. Import `gabmn0704/FITMENTOR-IA` as a Blueprint; it contains `render.yaml` for the AI service.
+3. Wait for all services to finish deployment.
 
-After deployment, update the environment variables in the frontend repository with the real public URLs:
+After deployment, set `AI_SERVICE_URL` on the backend to the actual AI service URL if Render assigned a different URL. Set `VITE_API_URL` in Netlify to the actual backend URL, then trigger a new frontend deploy:
 
 - `VITE_API_URL=https://fitmentor-backend.onrender.com`
 
-For Render, the backend service must expose:
+The backend service is configured with:
 
-- `DATABASE_URL`
+- `DATABASE_HOST`
+- `DATABASE_PORT`
+- `DATABASE_NAME`
 - `DATABASE_USER`
 - `DATABASE_PASSWORD`
-- `DATABASE_DRIVER`
 - `AI_SERVICE_URL`
+- `SPRING_PROFILES_ACTIVE=render`
 
 The AI service endpoint is exposed by Render automatically and should be passed into the backend via the `AI_SERVICE_URL` variable.
 
@@ -63,5 +57,6 @@ Once the services are live:
 ## 4. Important notes
 
 - The frontend uses `VITE_API_URL` as the backend base URL.
-- The backend waits for `AI_SERVICE_URL` and stores it in `application.yml`.
-- The app is ready for public deployment at the code and configuration level; final live access depends on the GitHub Pages repo setting and the Render account permissions.
+- The backend uses `application-render.yml` for Render's PostgreSQL connection and waits for the actual `AI_SERVICE_URL`.
+- The free Render Postgres plan has limited lifetime/storage and is intended for evaluation, not durable production data.
+- Actual public access still depends on signing in to Netlify and Render and approving the repository connections.

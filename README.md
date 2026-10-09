@@ -21,11 +21,11 @@ The frontend is available at `http://localhost:5173`, the backend at `http://loc
 
 ## Production deployment
 
-The project is ready to deploy in three public layers:
+The intended public deployment uses Netlify for the web app and Render for the services:
 
-- Frontend: GitHub Pages, using the workflow in `frontend/.github/workflows/pages.yml`
-- Backend + AI service: Render web services, using the `render.yaml` blueprint in the repository root
-- Database: Render Postgres service managed from the same Render blueprint
+- Frontend: Netlify, configured by `frontend/netlify.toml`
+- Backend + Postgres: Render, using `backend/render.yaml`
+- AI service: Render, using `ai-service/render.yaml`
 
 For the exact steps and environment variables, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
