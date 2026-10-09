@@ -1,16 +1,30 @@
-/frontend/
-/backend/
-/database/
-/ai-service/
-/infrastructure/
-/start-app.bat
-/start-app.ps1
-/.vscode/
-/.github/modernize/
-mobile/node_modules/
-mobile/.expo/
-mobile/dist/
-mobile/web-build/
-*.log
-*.tsbuildinfo
+# OS / editor
 .DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/*.tsbuildinfo
+
+# Python / AI service
+**/__pycache__/
+**/.venv/
+**/venv/
+*.pyc
+
+# Java / backend
+**/target/
+*.class
+
+# Logs
+*.log
+
+# Local env files
+.env
+.env.*
+!.env.example
+!.env.production.example

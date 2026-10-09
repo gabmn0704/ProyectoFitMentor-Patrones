@@ -1,0 +1,29 @@
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: fitmentor
+      POSTGRES_USER: fitmentor
+      POSTGRES_PASSWORD: fitmentor
+    ports: ["5432:5432"]
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+  ai-service:
+    build: ../ai-service
+    ports: ["8000:8000"]
+  backend:
+    build: ../backend
+    environment:
+      DATABASE_URL: jdbc:postgresql://database:5432/fitmentor
+      DATABASE_USER: fitmentor
+      DATABASE_PASSWORD: fitmentor
+      AI_SERVICE_URL: http://ai-service:8000
+    ports: ["8080:8080"]
+    depends_on: [database, ai-service]
+  frontend:
+    build: ../frontend
+    ports: ["5173:80"]
+    depends_on: [backend]
+volumes:
+  postgres_data:

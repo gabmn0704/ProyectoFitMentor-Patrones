@@ -1,0 +1,69 @@
+services:
+  - type: pserv
+    name: fitmentor-db
+    plan: starter
+    databaseName: fitmentor
+    databaseUser: fitmentor
+    postgresMajorVersion: 16
+    envVars:
+      - key: POSTGRES_DB
+        value: fitmentor
+      - key: POSTGRES_USER
+        value: fitmentor
+      - key: POSTGRES_PASSWORD
+        generateValue: true
+
+  - type: web
+    name: fitmentor-ai
+    runtime: docker
+    rootDir: ai-service
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    healthCheckPath: /docs
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+    autoDeploy: true
+
+  - type: web
+    name: fitmentor-backend
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fitmentor-db
+          property: connectionString
+      - key: DATABASE_USER
+        fromDatabase:
+          name: fitmentor-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: fitmentor-db
+          property: password
+      - key: DATABASE_DRIVER
+        value: org.postgresql.Driver
+      - key: AI_SERVICE_URL
+        fromService:
+          name: fitmentor-ai
+          type: web
+          property: url
+      - key: SERVER_PORT
+        value: "8080"
+    autoDeploy: true
+
+  - type: static
+    name: fitmentor-frontend
+    rootDir: frontend
+    buildCommand: npm install && npm run build -- --base=/
+    staticPublishPath: dist
+    pullRequestPreviewsEnabled: true
+    envVars:
+      - key: VITE_API_URL
+        value: https://fitmentor-backend.onrender.com

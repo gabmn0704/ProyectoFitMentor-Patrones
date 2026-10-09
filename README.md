@@ -2,21 +2,32 @@
 
 FitMentor is a training platform with real-time movement analysis, session tracking and adaptive routines.
 
-## Repositories
+## Structure
 
-- [Frontend](https://github.com/gabmn0704/FITMENTOR-FRONT): React and TypeScript web application with browser-based MediaPipe pose detection.
-- [Backend](https://github.com/gabmn0704/FITMENTOR-BACKEND): Spring Boot REST and WebSocket service with the software design patterns.
-- [Pose analysis service](https://github.com/gabmn0704/FITMENTOR-IA): FastAPI service for exercise-specific posture feedback.
-- [Database and deployment](https://github.com/gabmn0704/FITMENTOR-BD): PostgreSQL schema, validation workflow and Render Blueprint.
-- Native mobile app: Expo and React Native application in `mobile/`.
+- `frontend`: React + TypeScript application.
+- `mobile`: Expo / React Native app for Android and iOS. It uses a custom development build for native camera frame processing and on-device MoveNet inference; Expo Go is not supported for this full AI path.
+- `backend`: Spring Boot application with domain patterns, REST and WebSocket endpoints.
+- `ai-service`: FastAPI service for pose analysis.
+- `database`: PostgreSQL schema and seed data.
+- `infrastructure`: Docker Compose and Kubernetes manifests.
+
+## Local startup
+
+```bash
+docker compose -f infrastructure/docker-compose.yml up --build
+```
+
+The frontend is available at `http://localhost:5173`, the backend at `http://localhost:8080` and the AI service at `http://localhost:8000`.
 
 ## Production deployment
 
-The frontend is configured for GitHub Pages. Enable **Settings > Pages > Build and deployment > Source > GitHub Actions** in `FITMENTOR-FRONT`.
+The project is ready to deploy in three public layers:
 
-Create a Render Blueprint from `FITMENTOR-BD/render.yaml` and authorize its access to the backend and pose-analysis repositories. The Blueprint provisions PostgreSQL and links the backend to the private AI service. Its always-on service and database plans incur provider charges.
+- Frontend: GitHub Pages, using the workflow in `frontend/.github/workflows/pages.yml`
+- Backend + AI service: Render web services, using the `render.yaml` blueprint in the repository root
+- Database: Render Postgres service managed from the same Render blueprint
 
-Set the `VITE_API_URL` Actions variable in `FITMENTOR-FRONT` to the public Render backend URL. The browser sends selected pose landmarks over WebSocket; video frames remain on-device.
+For the exact steps and environment variables, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Native mobile app
 
