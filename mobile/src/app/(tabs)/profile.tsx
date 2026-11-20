@@ -66,7 +66,7 @@ export default function Profile() {
   return (
     <Screen title="Perfil" eyebrow="Tu cuenta">
       <Reveal index={0}>
-        <PageHero state={pending ? 'idle' : 'wave'} message={pending ? 'Tienes sesiones por subir. Se sincronizan solas.' : `Tu cuenta está al día${body ? ` · semana ${currentWeek(body)}` : ''}.`} size={92}>
+        <PageHero photo="ropes" state={pending ? 'idle' : 'wave'} message={pending ? 'Tienes sesiones por subir. Se sincronizan solas.' : `Tu cuenta está al día${body ? ` · semana ${currentWeek(body)}` : ''}.`} size={92}>
         <View style={styles.id}>
           <View style={styles.avatar} accessibilityElementsHidden>
             <Text variant="headline" color={colors.onCobalt}>{initials(user.name)}</Text>

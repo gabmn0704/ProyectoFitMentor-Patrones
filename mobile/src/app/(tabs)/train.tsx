@@ -226,7 +226,7 @@ export default function Train() {
     return (
       <ScrollView style={styles.root} contentContainerStyle={[styles.content, { paddingTop: insets.top + 16, paddingBottom: 120 + insets.bottom }]} showsVerticalScrollIndicator={false}>
         <Animated.View entering={reduced ? undefined : FadeIn.duration(300)} style={styles.stack}>
-          <PageHero
+          <PageHero photo="gym"
             state={summary.current.reps === 0 ? 'worried' : 'celebrate'}
             size={116}
             message={summary.current.reps === 0 ? 'No conté repeticiones. Probemos otra vez con el cuerpo completo en cámara.' : summary.current.accuracy >= 80 ? 'Sesión terminada con muy buena técnica.' : 'Sesión terminada. La próxima cuidamos la técnica.'}

@@ -39,7 +39,7 @@ export default function Plan() {
   if (!body || !plan || !day) {
     return (
       <Screen title="Tu plan" eyebrow="Plan">
-        <PageHero state="worried" message="Aún no tengo tus datos para armar el plan." />
+        <PageHero photo="core" state="worried" message="Aún no tengo tus datos para armar el plan." />
         <EmptyState icon={<Moon size={26} color={colors.textMuted} />} title="Aún no hay plan" hint="Completa tu perfil para calcular tu rutina y tu alimentación." action={{ label: 'Crear mi plan', onPress: () => router.push('/edit-body') }} />
       </Screen>
     )
@@ -50,7 +50,7 @@ export default function Plan() {
   return (
     <Screen title="Tu plan" eyebrow={`Semana ${week} · ${goalName(body.goal)}`}>
       <Reveal index={0} style={styles.gap}>
-        <PageHero
+        <PageHero photo="core"
           state={day.kind === 'rest' ? 'rest' : plan.deload ? 'idle' : 'wave'}
           message={day.kind === 'rest' ? 'Hoy toca recuperar. Tu cuerpo mejora mientras descansa.' : plan.deload ? 'Semana de descarga: baja la carga y cuida la técnica.' : 'Este es tu plan. Un día a la vez.'}
         >

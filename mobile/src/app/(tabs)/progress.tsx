@@ -52,7 +52,7 @@ export default function Progress() {
       {fromLocal ? <Text variant="small" color={colors.textSubtle}>Sin conexión: se muestran las sesiones guardadas en el teléfono.</Text> : null}
 
       <Reveal index={0}>
-        <PageHero
+        <PageHero photo="deadlift"
           state={empty ? 'idle' : stats.streakDays >= 3 ? 'cheer' : stats.streakDays === 0 ? 'worried' : 'wave'}
           message={empty ? 'Aquí verás tu avance. Empecemos con una sesión.' : stats.streakDays >= 3 ? `${stats.streakDays} días seguidos. Esa constancia se nota.` : stats.streakDays === 0 ? 'Sin racha hoy. Una sesión corta la reactiva.' : 'Vas bien. Mañana sumamos otro día.'}
         >
