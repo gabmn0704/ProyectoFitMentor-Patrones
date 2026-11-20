@@ -16,10 +16,10 @@ export function SyncBadge() {
       onPress={() => void sync()}
       disabled={!online || syncing}
       accessibilityLabel={`${label}. Toca para reintentar`}
-      style={[styles.badge, { backgroundColor: online ? colors.cobaltWash : colors.signalWash }]}
+      style={[styles.badge, { backgroundColor: online ? colors.cobaltWash : colors.dangerWash }]}
     >
-      <Icon size={14} color={online ? colors.cobaltText : colors.signalText} />
-      <Text variant="label" color={online ? colors.cobaltText : colors.signalText} style={styles.text}>
+      <Icon size={14} color={online ? colors.cobaltText : colors.dangerText} />
+      <Text variant="label" color={online ? colors.cobaltText : colors.dangerText} style={styles.text}>
         {label}
       </Text>
     </Pressable>

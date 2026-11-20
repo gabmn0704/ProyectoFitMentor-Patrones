@@ -35,7 +35,7 @@ assets/brand/    logo.svg (marca oficial) — los iconos se generan con `npm run
 
 | Variable | Para qué | Valor por defecto |
 | --- | --- | --- |
-| `EXPO_PUBLIC_API_URL` | URL base del backend Spring | `https://fitmentor-backend.onrender.com` |
+| `EXPO_PUBLIC_API_URL` | URL base del backend Spring | `https://fitmentor-backend-vhnq.onrender.com` |
 
 Para un backend local usa tu IP de la red, por ejemplo `EXPO_PUBLIC_API_URL=http://192.168.1.20:8080 npx expo start --dev-client`. En los builds de EAS la variable viene de `eas.json`. No se guarda ningún secreto en el repositorio: ni `.env`, ni keystores.
 
