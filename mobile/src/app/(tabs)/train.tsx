@@ -316,7 +316,7 @@ export default function Train() {
               </View>
               <View style={styles.techBadge}>
                 <Text variant="label" color={colors.textMuted}>Técnica</Text>
-                <Text variant="title" color={score >= 80 ? colors.good : score >= 60 ? colors.text : colors.signalText} style={{ fontFamily: fonts.display, fontSize: 30, lineHeight: 34 }}>
+                <Text variant="title" color={score >= 80 ? colors.good : score >= 60 ? colors.text : colors.dangerText} style={{ fontFamily: fonts.display, fontSize: 30, lineHeight: 34 }}>
                   {score}<Text variant="small" color={colors.textMuted}>%</Text>
                 </Text>
               </View>
@@ -334,8 +334,8 @@ export default function Train() {
       {phase === 'idle' ? (
         <View style={[styles.controls, { paddingBottom: 100 + insets.bottom }]}>
           <View style={styles.statusRow}>
-            {engine.status === 'loading' ? <ActivityIndicator size="small" color={colors.cobaltText} /> : <ShieldCheck size={16} color={engine.status === 'ready' ? colors.good : colors.signalText} />}
-            <Text variant="small" color={engine.status === 'error' ? colors.signalText : colors.textMuted} style={styles.flex}>{modelMessage}</Text>
+            {engine.status === 'loading' ? <ActivityIndicator size="small" color={colors.cobaltText} /> : <ShieldCheck size={16} color={engine.status === 'ready' ? colors.good : colors.dangerText} />}
+            <Text variant="small" color={engine.status === 'error' ? colors.dangerText : colors.textMuted} style={styles.flex}>{modelMessage}</Text>
             <Pressable onPress={toggleVoice} accessibilityLabel={voice ? 'Silenciar voz' : 'Activar voz'} accessibilityRole="switch" accessibilityState={{ checked: voice }} style={styles.voice}>
               {voice ? <Volume2 size={20} color={colors.good} /> : <VolumeX size={20} color={colors.textMuted} />}
             </Pressable>

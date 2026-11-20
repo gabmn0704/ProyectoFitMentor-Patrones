@@ -68,7 +68,7 @@ export function Field({ label, error, right, style, ...rest }: FieldProps) {
           accessibilityLabel={label}
           placeholderTextColor={colors.textSubtle}
           selectionColor={colors.cobaltText}
-          cursorColor={colors.vermilion}
+          cursorColor={colors.lime}
           {...rest}
           onFocus={(event) => {
             setFocused(true)
@@ -83,7 +83,7 @@ export function Field({ label, error, right, style, ...rest }: FieldProps) {
         {right}
       </View>
       {error ? (
-        <Text variant="small" color={colors.signalText} accessibilityLiveRegion="polite">
+        <Text variant="small" color={colors.dangerText} accessibilityLiveRegion="polite">
           {error}
         </Text>
       ) : null}
@@ -104,12 +104,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surface,
-    borderRadius: radii.sm,
+    borderRadius: radii.md,
     borderWidth: 1.5,
     borderColor: colors.lineStrong,
     paddingHorizontal: 14,
   },
   inputFocus: { borderColor: colors.cobaltText, backgroundColor: colors.surfaceHigh },
-  inputError: { borderColor: colors.vermilion },
+  inputError: { borderColor: colors.danger },
   input: { flex: 1, color: colors.text, fontFamily: fonts.body, fontSize: 16, paddingVertical: 10 },
 })

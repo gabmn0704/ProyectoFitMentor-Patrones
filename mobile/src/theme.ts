@@ -1,30 +1,34 @@
 /**
- * Tokens del tema oscuro de FitMentor. Misma familia que la web ("Race Day de noche"):
- * campo de tinta, cobalto para datos y selección, bermellón como señal de acción.
- * El verde menta del logotipo solo aparece en la marca y en estados de éxito.
+ * Tokens del tema oscuro de FitMentor. Misma familia que la web de la marca nueva:
+ * campo verde-negro, menta para datos y selección, lima como acción principal.
+ * Los nombres `cobalt*` y `vermilion`/`signal*` se conservan por compatibilidad: ahora son menta y lima.
+ * Los errores usan `danger*` (rosa rojizo), nunca lima.
  */
 export const colors = {
-  bg: '#05070c',
-  field: '#0c111c',
-  surface: '#111827',
-  surfaceHigh: '#182034',
-  line: 'rgba(244,246,251,0.10)',
-  lineStrong: 'rgba(244,246,251,0.24)',
-  text: '#f4f6fb',
-  textMuted: '#b4bccd',
-  textSubtle: '#8a93a6',
-  cobalt: '#2a47ff',
-  cobaltText: '#8a9dff',
-  cobaltWash: 'rgba(42,71,255,0.18)',
-  onCobalt: '#f6f8ff',
-  vermilion: '#ff3d1f',
-  signalText: '#ff7d66',
-  signalWash: 'rgba(255,61,31,0.14)',
+  bg: '#050a08',
+  field: '#0a110e',
+  surface: '#0f1814',
+  surfaceHigh: '#16231d',
+  line: 'rgba(236,255,246,0.10)',
+  lineStrong: 'rgba(236,255,246,0.24)',
+  text: '#f1f8f4',
+  textMuted: '#b2c2ba',
+  textSubtle: '#86978f',
+  cobalt: '#19e3a1',
+  cobaltText: '#7df0c0',
+  cobaltWash: 'rgba(25,227,161,0.16)',
+  onCobalt: '#04140e',
+  vermilion: '#d4ff3a',
+  signalText: '#e6ff7a',
+  signalWash: 'rgba(212,255,58,0.12)',
+  danger: '#ff4d6a',
+  dangerText: '#ff8da0',
+  dangerWash: 'rgba(255,77,106,0.14)',
   good: '#56d596',
   goodWash: 'rgba(86,213,150,0.14)',
   mint: '#19E3A1',
   lime: '#D4FF3A',
-  scrim: 'rgba(5,7,12,0.72)',
+  scrim: 'rgba(5,10,8,0.72)',
 } as const
 
 export const fonts = {

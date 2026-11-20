@@ -8,8 +8,8 @@ type CardProps = { children: ReactNode; style?: StyleProp<ViewStyle>; tone?: 'su
 const tones = {
   surface: { backgroundColor: colors.surface, borderColor: colors.line },
   field: { backgroundColor: colors.field, borderColor: colors.line },
-  cobalt: { backgroundColor: colors.cobaltWash, borderColor: 'rgba(138,157,255,0.35)' },
-  signal: { backgroundColor: colors.signalWash, borderColor: 'rgba(255,125,102,0.4)' },
+  cobalt: { backgroundColor: colors.cobaltWash, borderColor: 'rgba(25,227,161,0.35)' },
+  signal: { backgroundColor: colors.signalWash, borderColor: 'rgba(212,255,58,0.35)' },
 }
 
 export function Card({ children, style, tone = 'surface' }: CardProps) {

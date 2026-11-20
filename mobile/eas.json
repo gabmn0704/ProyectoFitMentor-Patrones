@@ -11,7 +11,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://fitmentor-backend.onrender.com"
+        "EXPO_PUBLIC_API_URL": "https://fitmentor-backend-vhnq.onrender.com"
       }
     },
     "preview": {
@@ -20,7 +20,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://fitmentor-backend.onrender.com"
+        "EXPO_PUBLIC_API_URL": "https://fitmentor-backend-vhnq.onrender.com"
       }
     },
     "production": {
@@ -29,7 +29,7 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://fitmentor-backend.onrender.com"
+        "EXPO_PUBLIC_API_URL": "https://fitmentor-backend-vhnq.onrender.com"
       }
     }
   }

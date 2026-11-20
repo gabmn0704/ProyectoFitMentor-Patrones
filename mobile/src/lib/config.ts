@@ -2,7 +2,7 @@
  * Configuración pública. EXPO_PUBLIC_API_URL se inyecta en el build (ver eas.json);
  * si falta se usa el backend de producción documentado en DEPLOYMENT.md.
  */
-const DEFAULT_API_URL = 'https://fitmentor-backend.onrender.com'
+const DEFAULT_API_URL = 'https://fitmentor-backend-vhnq.onrender.com'
 
 export const API_URL: string = (process.env.EXPO_PUBLIC_API_URL?.trim() || DEFAULT_API_URL).replace(/\/+$/, '')
 

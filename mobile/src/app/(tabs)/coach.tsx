@@ -119,7 +119,7 @@ export default function Coach() {
                 <Text variant="label" color={colors.cobaltText} style={styles.sourceText}>{coachSourceLabel(item.source)}</Text>
               </View>
             ) : null}
-            <Text selectable color={item.role === 'user' ? colors.onCobalt : item.error ? colors.signalText : colors.text} style={styles.bubbleText}>{item.text}</Text>
+            <Text selectable color={item.role === 'user' ? colors.onCobalt : item.error ? colors.dangerText : colors.text} style={styles.bubbleText}>{item.text}</Text>
           </Animated.View>
         )}
       />
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   bubble: { maxWidth: '88%', borderRadius: radii.lg, paddingHorizontal: 16, paddingVertical: 12, gap: 6 },
   coach: { alignSelf: 'flex-start', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderTopLeftRadius: radii.xs },
   user: { alignSelf: 'flex-end', backgroundColor: colors.cobalt, borderTopRightRadius: radii.xs },
-  error: { alignSelf: 'flex-start', backgroundColor: colors.signalWash, borderWidth: 1, borderColor: 'rgba(255,125,102,0.4)' },
+  error: { alignSelf: 'flex-start', backgroundColor: colors.dangerWash, borderWidth: 1, borderColor: 'rgba(255,125,143,0.4)' },
   bubbleText: { fontSize: 15.5, lineHeight: 23 },
   source: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   sourceText: { fontSize: 10.5, letterSpacing: 0.8 },

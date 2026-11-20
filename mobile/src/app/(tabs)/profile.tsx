@@ -113,7 +113,7 @@ export default function Profile() {
       </Reveal>
 
       <Reveal index={4} style={styles.block}>
-        <Button label="Cerrar sesión" variant="danger" onPress={confirmLogout} icon={<LogOut size={18} color={colors.signalText} />} />
+        <Button label="Cerrar sesión" variant="danger" onPress={confirmLogout} icon={<LogOut size={18} color={colors.dangerText} />} />
         <Text variant="small" color={colors.textSubtle} style={styles.version}>
           FitMentor {Constants.expoConfig?.version ?? '1.0.0'} · {API_URL.replace(/^https?:\/\//, '')}
         </Text>

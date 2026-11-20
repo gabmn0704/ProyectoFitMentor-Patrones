@@ -60,8 +60,8 @@ type ErrorProps = { message: string; onRetry?: () => void; offline?: boolean }
 export function ErrorState({ message, onRetry, offline }: ErrorProps) {
   return (
     <View style={styles.empty} accessibilityRole="alert">
-      <View style={[styles.emptyIcon, { backgroundColor: colors.signalWash }]}>
-        {offline ? <WifiOff size={26} color={colors.signalText} /> : <AlertTriangle size={26} color={colors.signalText} />}
+      <View style={[styles.emptyIcon, { backgroundColor: colors.dangerWash }]}>
+        {offline ? <WifiOff size={26} color={colors.dangerText} /> : <AlertTriangle size={26} color={colors.dangerText} />}
       </View>
       <Text variant="title" style={styles.center}>{offline ? 'Sin conexión' : 'No pudimos cargar esto'}</Text>
       <Text variant="small" color={colors.textMuted} style={styles.center}>{message}</Text>
@@ -75,7 +75,7 @@ type NoticeProps = { tone?: 'info' | 'error' | 'ok'; children: ReactNode }
 export function Notice({ tone = 'info', children }: NoticeProps) {
   const palette = {
     info: { bg: colors.cobaltWash, fg: colors.cobaltText },
-    error: { bg: colors.signalWash, fg: colors.signalText },
+    error: { bg: colors.dangerWash, fg: colors.dangerText },
     ok: { bg: colors.goodWash, fg: colors.good },
   }[tone]
   return (

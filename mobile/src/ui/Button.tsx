@@ -22,7 +22,7 @@ const palette: Record<Variant, { bg: string; fg: string; border?: string }> = {
   primary: { bg: colors.vermilion, fg: '#0a0c12' },
   cobalt: { bg: colors.cobalt, fg: colors.onCobalt },
   ghost: { bg: 'transparent', fg: colors.text, border: colors.lineStrong },
-  danger: { bg: 'transparent', fg: colors.signalText, border: colors.vermilion },
+  danger: { bg: 'transparent', fg: colors.dangerText, border: colors.danger },
 }
 
 /** Botón táctil de 48 dp (58 dp en grande). Bermellón = la acción principal. */
@@ -56,6 +56,6 @@ export function Button({ label, onPress, variant = 'primary', icon, loading, dis
 }
 
 const styles = StyleSheet.create({
-  base: { borderRadius: radii.sm, borderWidth: 1.5, paddingHorizontal: 24, alignItems: 'center', justifyContent: 'center' },
+  base: { borderRadius: radii.md, borderWidth: 1.5, paddingHorizontal: 24, alignItems: 'center', justifyContent: 'center' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
 })
