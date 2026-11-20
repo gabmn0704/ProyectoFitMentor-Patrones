@@ -1,9 +1,11 @@
 import { Send, Sparkles } from 'lucide-react-native'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useFocusEffect } from 'expo-router'
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, TextInput, View } from 'react-native'
 import Animated, { FadeInUp, useReducedMotion } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ApiError } from '../../lib/api'
+import { ApiError, warmUpBackend } from '../../lib/api'
+import { localCoachAnswer } from '../../lib/coachLocal'
 import { coachProfilePayload, coachSuggestions, coachWelcome } from '../../lib/coachProfile'
 import { coachSourceLabel, LIMITS, toCoachSource } from '../../lib/contract'
 import { coachApi } from '../../lib/services'
@@ -20,7 +22,9 @@ import { Skeleton } from '../../ui/States'
 import { Text } from '../../ui/Text'
 import { useKeyboardVisible } from '../../ui/useKeyboard'
 
-type Message = { id: string; role: 'user' | 'coach'; text: string; source?: CoachSource; error?: boolean }
+type Message = { id: string; role: 'user' | 'coach'; text: string; source?: CoachSource | 'offline'; error?: boolean }
+
+const OFFLINE_LABEL = 'Guía local · sin conexión con el coach'
 
 const storeKey = (userId: string) => `fitmentor.coach.${userId}`
 
@@ -35,6 +39,9 @@ export default function Coach() {
   const [sending, setSending] = useState(false)
   const [ready, setReady] = useState(false)
   const list = useRef<FlatList<Message>>(null)
+
+    // Despierta el backend (y con él la IA) al entrar: en Render puede tardar hasta un minuto.
+  useFocusEffect(useCallback(() => warmUpBackend(), []))
 
   const welcome = useMemo(() => coachWelcome(user?.name, body?.goal), [user?.name, body?.goal])
   const suggestions = useMemo(() => coachSuggestions(body?.goal), [body?.goal])
@@ -63,13 +70,25 @@ export default function Coach() {
     setDraft('')
     setSending(true)
     try {
-      const history = messages.filter((m) => !m.error).map((m) => ({ role: m.role, text: m.text }))
+      const history = messages.filter((m) => !m.error && m.source !== 'offline').map((m) => ({ role: m.role, text: m.text }))
       const answer = await coachApi.ask(token, question, { profile: body ? coachProfilePayload(body) : undefined, history })
       const next: Message[] = [...withQuestion, { id: `c-${Date.now()}`, role: 'coach', text: answer.answer, source: toCoachSource(answer.source) }]
       setMessages(next)
       persist(next)
       haptic.tap()
     } catch (reason) {
+      // Sin red, servidor caído o sin la IA: el chat sigue respondiendo con la guía local (igual que la web).
+      const unreachable = reason instanceof ApiError && (reason.status === 0 || reason.status === 404 || reason.status >= 500)
+      if (unreachable) {
+        haptic.warn()
+        const next: Message[] = [
+          ...withQuestion,
+          { id: `o-${Date.now()}`, role: 'coach', text: localCoachAnswer(question, body ? coachProfilePayload(body) : undefined), source: 'offline' },
+        ]
+        setMessages(next)
+        persist(next)
+        return
+      }
       haptic.error()
       const message = reason instanceof ApiError ? reason.message : 'No pude responder ahora. Inténtalo de nuevo.'
       setMessages([...withQuestion, { id: `e-${Date.now()}`, role: 'coach', text: message, error: true }])
@@ -120,7 +139,7 @@ export default function Coach() {
             {item.role === 'coach' && !item.error && item.source ? (
               <View style={styles.source}>
                 <Sparkles size={12} color={colors.cobaltText} />
-                <Text variant="label" color={colors.cobaltText} style={styles.sourceText}>{coachSourceLabel(item.source)}</Text>
+                <Text variant="label" color={colors.cobaltText} style={styles.sourceText}>{item.source === 'offline' ? OFFLINE_LABEL : coachSourceLabel(item.source)}</Text>
               </View>
             ) : null}
             <Text selectable color={item.role === 'user' ? colors.onCobalt : item.error ? colors.dangerText : colors.text} style={styles.bubbleText}>{item.text}</Text>
