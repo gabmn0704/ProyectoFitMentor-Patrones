@@ -31,4 +31,4 @@ For the exact steps and environment variables, see [DEPLOYMENT.md](DEPLOYMENT.md
 
 ## Native mobile app
 
-See [`mobile/README.md`](mobile/README.md) for Android development-build setup. The mobile coach processes camera frames and pose inference on the device. Expo Go cannot load these custom native modules; use a development build installed on the phone.
+The Expo app in `mobile/` mirrors the web (home, camera training, plan, progress, AI coach, profile) and ships as an Android APK (`com.fitmentor.app`). See [`mobile/README.md`](mobile/README.md) for the APK build steps (`eas build --profile preview`) and development-build setup. The mobile coach processes camera frames and pose inference on the device. Expo Go cannot load these custom native modules; use a development build installed on the phone.
