@@ -17,7 +17,9 @@ import {
 
 export type RealtimeStatus = 'offline' | 'connecting' | 'open' | 'closed'
 
-const RECONNECT_MS = 3_000
+/** Reconexión: primer reintento a los 2 s, luego con espera creciente hasta 30 s (igual que la web). */
+const RECONNECT_MS = 2_000
+const MAX_RECONNECT_MS = 30_000
 const HEARTBEAT_MS = 10_000
 
 /**
@@ -32,6 +34,7 @@ export function useRealtime(token: string | null, enabled: boolean) {
   const subscription = useRef<StompSubscription | null>(null)
   const sessionRef = useRef<string | null>(null)
   const lastSent = useRef(0)
+  const failures = useRef(0)
 
   const subscribe = useCallback((client: Client, sessionId: string) => {
     subscription.current?.unsubscribe()
@@ -58,10 +61,18 @@ export function useRealtime(token: string | null, enabled: boolean) {
       appendMissingNULLonIncoming: true,
     })
     client.onConnect = () => {
+      failures.current = 0
+      client.reconnectDelay = RECONNECT_MS
       setStatus('open')
       if (sessionRef.current) subscribe(client, sessionRef.current)
     }
-    client.onWebSocketClose = () => setStatus('closed')
+    client.onWebSocketClose = () => {
+      failures.current += 1
+      client.reconnectDelay = Math.min(MAX_RECONNECT_MS, RECONNECT_MS * 2 ** Math.min(4, failures.current - 1))
+      subscription.current = null
+      setFeedback(null)
+      setStatus('closed')
+    }
     client.onWebSocketError = () => setStatus('closed')
     client.onStompError = () => setStatus('closed')
     clientRef.current = client
