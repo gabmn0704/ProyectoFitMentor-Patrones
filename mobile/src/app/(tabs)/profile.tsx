@@ -12,7 +12,7 @@ import { nutritionTargets } from '../../lib/nutrition'
 import type { Level } from '../../lib/types'
 import { useAuth } from '../../state/auth'
 import { useData } from '../../state/data'
-import { colors, fonts, radii } from '../../theme'
+import { colors, fonts } from '../../theme'
 import { Button } from '../../ui/Button'
 import { BibTile, Card } from '../../ui/Card'
 import { Segmented } from '../../ui/Controls'
@@ -66,7 +66,7 @@ export default function Profile() {
   return (
     <Screen title="Perfil" eyebrow="Tu cuenta">
       <Reveal index={0}>
-        <PageHero state={pending ? 'idle' : 'wave'} message={pending ? 'Tienes sesiones por subir. Se sincronizan solas.' : `Tu cuenta está al día${body ? ` · semana ${currentWeek(body)}` : ''}.`} size={92}>
+        <PageHero photo="ropes" state={pending ? 'idle' : 'wave'} message={pending ? 'Tienes sesiones por subir. Se sincronizan solas.' : `Tu cuenta está al día${body ? ` · semana ${currentWeek(body)}` : ''}.`} size={92}>
         <View style={styles.id}>
           <View style={styles.avatar} accessibilityElementsHidden>
             <Text variant="headline" color={colors.onCobalt}>{initials(user.name)}</Text>
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   block: { gap: 12 },
   id: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  avatar: { width: 56, height: 56, borderRadius: radii.lg, backgroundColor: colors.cobalt, alignItems: 'center', justifyContent: 'center' },
+  avatar: { width: 64, height: 64, borderRadius: 32, backgroundColor: colors.cobalt, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: 'rgba(212,255,58,0.7)', shadowColor: '#19e3a1', shadowOpacity: 0.7, shadowRadius: 14, shadowOffset: { width: 0, height: 0 }, elevation: 8 },
   plan: { gap: 12 },
   tiles: { flexDirection: 'row', gap: 12 },
   version: { textAlign: 'center', fontFamily: fonts.body },

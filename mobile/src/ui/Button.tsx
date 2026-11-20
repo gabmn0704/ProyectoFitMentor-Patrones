@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { ActivityIndicator, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
 import { colors, hit, radii } from '../theme'
+import { GradientFill } from './Gradient'
 import { Pressable } from './Pressable'
 import { Text } from './Text'
 
@@ -37,10 +38,12 @@ export function Button({ label, onPress, variant = 'primary', icon, loading, dis
       accessibilityState={{ disabled: Boolean(inactive), busy: Boolean(loading) }}
       style={[
         styles.base,
-        { backgroundColor: tone.bg, minHeight: large ? 58 : hit, borderColor: tone.border ?? 'transparent', opacity: inactive ? 0.5 : 1 },
+        { backgroundColor: tone.bg, minHeight: large ? 60 : hit, borderColor: tone.border ?? 'transparent', opacity: inactive ? 0.5 : 1 },
+        variant === 'primary' && !inactive && styles.glow,
         style,
       ]}
     >
+      {variant === 'primary' ? <GradientFill stops={[[0, '#19e3a1'], [1, '#d4ff3a']]} /> : null}
       {loading ? (
         <ActivityIndicator color={tone.fg} />
       ) : (
@@ -56,6 +59,7 @@ export function Button({ label, onPress, variant = 'primary', icon, loading, dis
 }
 
 const styles = StyleSheet.create({
-  base: { borderRadius: radii.md, borderWidth: 1.5, paddingHorizontal: 24, alignItems: 'center', justifyContent: 'center' },
+  base: { borderRadius: radii.pill, borderWidth: 1.5, paddingHorizontal: 28, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  glow: { shadowColor: '#19e3a1', shadowOpacity: 0.55, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 10 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
 })

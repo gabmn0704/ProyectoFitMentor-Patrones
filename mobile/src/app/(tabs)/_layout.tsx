@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { colors, radii } from '../../theme'
+import { colors } from '../../theme'
 import { useKeyboardVisible } from '../../ui/useKeyboard'
 import { haptic } from '../../ui/haptics'
 import { Pressable } from '../../ui/Pressable'
@@ -27,13 +27,13 @@ function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets()
   const keyboard = useKeyboardVisible()
   const [width, setWidth] = useState(0)
-  const slot = width / state.routes.length
-  const thumb = useAnimatedStyle(() => ({ transform: [{ translateX: withSpring(state.index * slot, { damping: 20, stiffness: 240 }) }] }))
+  const slot = (width - 10) / state.routes.length
+  const thumb = useAnimatedStyle(() => ({ transform: [{ translateX: withSpring(state.index * slot, { damping: 15, stiffness: 200 }) }] }))
   if (keyboard) return null
   return (
-    <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, 8) }]}>
+    <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, 10) }]} pointerEvents="box-none">
       <View style={styles.inner} onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
-        {width > 0 ? <Animated.View style={[styles.thumb, { width: slot - 6 }, thumb]} /> : null}
+        {width > 0 ? <Animated.View style={[styles.thumb, { width: slot }, thumb]} /> : null}
         {state.routes.map((route, index) => {
           const tab = TABS[route.name]
           if (!tab) return null
@@ -82,9 +82,9 @@ export default function TabsLayout() {
 }
 
 const styles = StyleSheet.create({
-  bar: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: colors.field, borderTopWidth: 1, borderTopColor: colors.line, borderTopLeftRadius: radii.xl, borderTopRightRadius: radii.xl, paddingTop: 8, paddingHorizontal: 6 },
-  inner: { flexDirection: 'row' },
-  thumb: { position: 'absolute', top: 0, bottom: 0, left: 3, backgroundColor: colors.cobalt, borderRadius: radii.sm },
-  item: { flex: 1, minHeight: 56, alignItems: 'center', justifyContent: 'center', gap: 3 },
+  bar: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 14 },
+  inner: { flexDirection: 'row', backgroundColor: 'rgba(12,20,16,0.96)', borderRadius: 30, borderWidth: 1, borderColor: colors.lineStrong, padding: 5, shadowColor: '#19e3a1', shadowOpacity: 0.3, shadowRadius: 20, shadowOffset: { width: 0, height: 6 }, elevation: 14 },
+  thumb: { position: 'absolute', top: 5, bottom: 5, left: 5, backgroundColor: colors.cobalt, borderRadius: 24, shadowColor: '#19e3a1', shadowOpacity: 0.7, shadowRadius: 12, shadowOffset: { width: 0, height: 0 } },
+  item: { flex: 1, minHeight: 54, alignItems: 'center', justifyContent: 'center', gap: 3 },
   label: { fontSize: 9.5, letterSpacing: 0.3, textTransform: 'none' },
 })

@@ -29,6 +29,7 @@ import { colors, radii } from '../../theme'
 import { Button } from '../../ui/Button'
 import { haptic } from '../../ui/haptics'
 import { Mascot } from '../../ui/Mascot'
+import { Photo, type PhotoName } from '../../ui/Photo'
 import { MentorQuote } from '../../ui/MentorQuote'
 import { Pressable } from '../../ui/Pressable'
 import { Reveal, Screen, SectionTitle } from '../../ui/Screen'
@@ -110,8 +111,8 @@ export default function Home() {
       {error && !stats ? <ErrorState message={error.message} offline={offline} onRetry={refresh} /> : null}
 
       <Reveal index={1}>
-        <View style={styles.hero}>
-          <View style={styles.glow} pointerEvents="none" />
+        <Photo name={trains ? 'gym' : 'studio'} style={styles.heroPhoto} shade={0.92}>
+          <View style={styles.hero}>
           <Mascot state={mood} size={132} message={heroMessage} placement="right" interactive style={styles.rep} />
           <MentorQuote userId={user?.id} />
           <View style={styles.today}>
@@ -133,7 +134,8 @@ export default function Home() {
             large
             icon={<Play size={18} color="#0a0c12" fill="#0a0c12" />}
           />
-        </View>
+          </View>
+        </Photo>
       </Reveal>
 
       <Reveal index={2}>
@@ -157,9 +159,9 @@ export default function Home() {
       </Reveal>
 
       <Reveal index={6} style={styles.quick}>
-        <QuickLink icon={<Dumbbell size={22} color={colors.onCobalt} />} label="Entrenar" onPress={() => router.navigate('/train')} primary />
-        <QuickLink icon={<CalendarDays size={22} color={colors.cobaltText} />} label="Plan" onPress={() => router.navigate('/plan')} />
-        <QuickLink icon={<Bot size={22} color={colors.cobaltText} />} label="Coach" onPress={() => router.navigate('/coach')} />
+        <QuickLink photo="deadlift" icon={<Dumbbell size={20} color={colors.mint} />} label="Entrenar" onPress={() => router.navigate('/train')} />
+        <QuickLink photo="core" icon={<CalendarDays size={20} color={colors.mint} />} label="Plan" onPress={() => router.navigate('/plan')} />
+        <QuickLink photo="ropes" icon={<Bot size={20} color={colors.mint} />} label="Coach" onPress={() => router.navigate('/coach')} />
       </Reveal>
 
       {routine.data ? (
@@ -196,27 +198,30 @@ export default function Home() {
   )
 }
 
-function QuickLink({ icon, label, onPress, primary }: { icon: React.ReactNode; label: string; onPress: () => void; primary?: boolean }) {
+function QuickLink({ icon, label, onPress, photo }: { icon: React.ReactNode; label: string; onPress: () => void; photo: PhotoName }) {
   return (
-    <Pressable onPress={onPress} accessibilityLabel={label} style={[styles.quickItem, primary && styles.quickPrimary]}>
-      <View style={[styles.quickIcon, primary && styles.quickIconPrimary]}>{icon}</View>
-      <Text variant="bodyStrong">{label}</Text>
+    <Pressable onPress={onPress} accessibilityLabel={label} style={styles.quickItem}>
+      <Photo name={photo} radius={radii.lg} shade={0.9} style={styles.quickPhoto}>
+        <View style={styles.quickBody}>
+          {icon}
+          <Text variant="bodyStrong">{label}</Text>
+        </View>
+      </Photo>
     </Pressable>
   )
 }
 
 const styles = StyleSheet.create({
-  hero: { backgroundColor: colors.field, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.line, padding: 18, gap: 16, overflow: 'hidden' },
-  glow: { position: 'absolute', top: -60, left: -40, width: 220, height: 220, borderRadius: 110, backgroundColor: colors.cobaltWash },
+  heroPhoto: { borderWidth: 1, borderColor: 'rgba(25,227,161,0.35)', shadowColor: '#19e3a1', shadowOpacity: 0.35, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 10 },
+  hero: { padding: 18, gap: 16 },
   rep: { alignSelf: 'stretch' },
   today: { gap: 6 },
   block: { gap: 12 },
   quick: { flexDirection: 'row', gap: 12 },
-  quickItem: { flex: 1, alignItems: 'center', gap: 8, backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.line, paddingVertical: 16, minHeight: 88 },
-  quickPrimary: { backgroundColor: colors.cobaltWash, borderColor: 'rgba(25,227,161,0.35)' },
-  quickIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surfaceHigh, alignItems: 'center', justifyContent: 'center' },
-  quickIconPrimary: { backgroundColor: colors.cobalt },
-  step: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: colors.surface, borderRadius: radii.md, borderWidth: 1, borderColor: colors.line, padding: 14, minHeight: 64 },
-  stepIndex: { width: 40, height: 40, borderRadius: radii.sm, backgroundColor: colors.cobaltWash, alignItems: 'center', justifyContent: 'center' },
+  quickItem: { flex: 1 },
+  quickPhoto: { height: 132, borderWidth: 1, borderColor: colors.line },
+  quickBody: { flex: 1, justifyContent: 'flex-end', gap: 6, padding: 12 },
+  step: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: colors.surface, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.line, padding: 14, minHeight: 64 },
+  stepIndex: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.cobaltWash, alignItems: 'center', justifyContent: 'center' },
   stepText: { flex: 1, gap: 2 },
 })
