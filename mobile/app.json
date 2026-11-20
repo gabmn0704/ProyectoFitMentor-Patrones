@@ -2,11 +2,25 @@
   "expo": {
     "name": "FitMentor",
     "slug": "fitmentor-mobile",
+    "scheme": "fitmentor",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#05070c",
     "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#0A0E13"
+        }
+      ],
       [
         "expo-build-properties",
         {
@@ -20,30 +34,37 @@
         {
           "enableCoreMLDelegate": true
         }
-      ],
-      "expo-router",
-      "expo-secure-store",
-      "expo-font",
-      "expo-splash-screen"
+      ]
     ],
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.fitmentor.mobile",
+      "supportsTablet": false,
+      "bundleIdentifier": "com.fitmentor.app",
       "infoPlist": {
-        "NSCameraUsageDescription": "FitMentor usa la cámara para analizar tu postura en el teléfono."
+        "NSCameraUsageDescription": "FitMentor usa la cámara para contar tus repeticiones y analizar tu postura en el teléfono. El video no se sube."
       }
     },
     "android": {
-      "package": "com.fitmentor.mobile",
+      "package": "com.fitmentor.app",
+      "versionCode": 1,
       "permissions": [
-        "android.permission.CAMERA"
+        "android.permission.CAMERA",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.VIBRATE"
+      ],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW"
       ],
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0A0E13",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
+      "softwareKeyboardLayoutMode": "resize",
       "predictiveBackGestureEnabled": false
     },
     "web": {
