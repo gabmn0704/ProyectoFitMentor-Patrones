@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
 import { colors, radii } from '../theme'
+import { GradientFill } from './Gradient'
 import { Text } from './Text'
 
 type CardProps = { children: ReactNode; style?: StyleProp<ViewStyle>; tone?: 'surface' | 'field' | 'cobalt' | 'signal' }
@@ -12,8 +13,22 @@ const tones = {
   signal: { backgroundColor: colors.signalWash, borderColor: 'rgba(212,255,58,0.35)' },
 }
 
+const washes: Record<NonNullable<CardProps['tone']>, Array<[number, string, number]>> = {
+  surface: [[0, '#1c2c25', 1], [1, '#0d1612', 1]],
+  field: [[0, '#14201a', 1], [1, '#0a110e', 1]],
+  cobalt: [[0, '#19e3a1', 0.26], [1, '#0a110e', 1]],
+  signal: [[0, '#d4ff3a', 0.22], [1, '#0a110e', 1]],
+}
+
+/** Tarjeta con degradado diagonal, borde luminoso y sombra de color: se siente de cristal, no una caja. */
 export function Card({ children, style, tone = 'surface' }: CardProps) {
-  return <View style={[styles.card, tones[tone], style]}>{children}</View>
+  const glow = tone === 'signal' ? colors.lime : tone === 'cobalt' ? colors.mint : '#000'
+  return (
+    <View style={[styles.card, tones[tone], { shadowColor: glow }, style]}>
+      <GradientFill stops={washes[tone]} />
+      {children}
+    </View>
+  )
 }
 
 type BibProps = {
@@ -54,7 +69,7 @@ export function BibTile({ label, value, suffix, foot, band = 'cobalt', style }: 
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: radii.lg, borderWidth: 1, padding: 20 },
+  card: { borderRadius: radii.xl, borderWidth: 1, padding: 20, overflow: 'hidden', shadowOpacity: 0.28, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 6 },
   bib: { flex: 1, backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.line, overflow: 'hidden' },
   band: { height: 34, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 8 },
   hole: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.bg },

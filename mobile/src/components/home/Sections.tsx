@@ -6,15 +6,17 @@ import { Card } from '../../ui/Card'
 import { Meter, Ring } from '../../ui/Charts'
 import { haptic } from '../../ui/haptics'
 import { Pressable } from '../../ui/Pressable'
+import { Glow } from '../../ui/Gradient'
 import { Text } from '../../ui/Text'
 
 /** Racha + nivel + tira de la semana (L a D). */
 export function StreakCard({ streak, days, level }: { streak: number; days: WeekDay[]; level: ReturnType<typeof levelFromXp> }) {
   return (
-    <Card style={styles.streak}>
+    <Card tone="signal" style={styles.streak}>
+      <Glow color={colors.lime} size={260} opacity={streak > 0 ? 0.35 : 0.12} style={{ top: -110, left: -80 }} />
       <View style={styles.row}>
         <View style={styles.flame}>
-          <Flame size={26} color={colors.vermilion} fill={streak > 0 ? colors.vermilion : 'transparent'} />
+          <Flame size={30} color={colors.vermilion} fill={streak > 0 ? colors.vermilion : 'transparent'} />
         </View>
         <View style={styles.grow} accessible accessibilityLabel={`Racha de ${streak} días`}>
           <Text variant="numeral" style={styles.streakNum}>{streak}</Text>
@@ -46,8 +48,8 @@ export function StreakCard({ streak, days, level }: { streak: number; days: Week
 /** Meta semanal: anillo de sesiones con selector de objetivo. */
 export function GoalCard({ done, goal, percent, reached, onChange }: { done: number; goal: number; percent: number; reached: boolean; onChange: (delta: number) => void }) {
   return (
-    <Card style={styles.goal}>
-      <Ring percent={percent} size={104} stroke={11}>
+    <Card tone="cobalt" style={styles.goal}>
+      <Ring percent={percent} size={116} stroke={13}>
         <Text variant="title" style={{ fontFamily: fonts.display }}>{done}/{goal}</Text>
       </Ring>
       <View style={styles.grow}>
@@ -105,7 +107,7 @@ export function BadgeStrip({ items }: { items: BadgeItem[] }) {
       {items.map(({ badge, progress, unlocked }) => (
         <View key={badge.id} style={[styles.badge, unlocked && styles.badgeOn]} accessible accessibilityLabel={`${badge.title}: ${unlocked ? 'desbloqueada' : `${Math.round(progress * 100)} por ciento`}. ${badge.description}`}>
           <View style={[styles.medal, unlocked && styles.medalOn]}>
-            {unlocked ? <Trophy size={22} color={colors.onCobalt} /> : <Lock size={18} color={colors.textSubtle} />}
+            {unlocked ? <Trophy size={24} color={colors.onCobalt} /> : <Lock size={18} color={colors.textSubtle} />}
           </View>
           <Text variant="small" style={styles.badgeTitle} numberOfLines={2} color={unlocked ? colors.text : colors.textMuted}>{badge.title}</Text>
           {unlocked ? null : <Meter percent={Math.round(progress * 100)} color={colors.cobalt} />}
@@ -119,13 +121,13 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   grow: { flex: 1, gap: 4 },
   streak: { gap: 16 },
-  flame: { width: 52, height: 52, borderRadius: radii.md, backgroundColor: colors.signalWash, alignItems: 'center', justifyContent: 'center' },
-  streakNum: { fontSize: 38, lineHeight: 40 },
+  flame: { width: 60, height: 60, borderRadius: 30, backgroundColor: 'rgba(212,255,58,0.16)', borderWidth: 1, borderColor: 'rgba(212,255,58,0.4)', alignItems: 'center', justifyContent: 'center', shadowColor: '#d4ff3a', shadowOpacity: 0.6, shadowRadius: 14, shadowOffset: { width: 0, height: 0 } },
+  streakNum: { fontSize: 52, lineHeight: 54, color: colors.lime },
   levelBox: { alignItems: 'flex-end', gap: 2 },
   week: { flexDirection: 'row', justifyContent: 'space-between' },
   day: { alignItems: 'center', gap: 6, flex: 1 },
-  dot: { width: 34, height: 34, borderRadius: 17, borderWidth: 1.5, borderColor: colors.lineStrong, alignItems: 'center', justifyContent: 'center' },
-  dotOn: { backgroundColor: colors.cobalt, borderColor: colors.cobalt },
+  dot: { width: 36, height: 36, borderRadius: 18, borderWidth: 1.5, borderColor: colors.lineStrong, backgroundColor: 'rgba(255,255,255,0.03)', alignItems: 'center', justifyContent: 'center' },
+  dotOn: { backgroundColor: colors.cobalt, borderColor: colors.cobalt, shadowColor: '#19e3a1', shadowOpacity: 0.7, shadowRadius: 8, shadowOffset: { width: 0, height: 0 } },
   dotToday: { borderColor: colors.vermilion },
   dotFuture: { opacity: 0.4 },
   xp: { gap: 6 },
@@ -134,13 +136,13 @@ const styles = StyleSheet.create({
   stepBtn: { width: 44, height: 44, borderRadius: radii.md, borderWidth: 1, borderColor: colors.lineStrong, alignItems: 'center', justifyContent: 'center' },
   challenges: { gap: 16 },
   challenge: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  check: { width: 28, height: 28, borderRadius: 14, borderWidth: 1.5, borderColor: colors.lineStrong, alignItems: 'center', justifyContent: 'center' },
+  check: { width: 30, height: 30, borderRadius: 15, borderWidth: 1.5, borderColor: colors.lineStrong, alignItems: 'center', justifyContent: 'center' },
   checkOn: { backgroundColor: colors.cobalt, borderColor: colors.cobalt },
   badgeScroll: { marginHorizontal: -20 },
   badges: { paddingHorizontal: 20, gap: 12 },
-  badge: { width: 108, gap: 8, backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.line, padding: 12 },
-  badgeOn: { borderColor: 'rgba(25,227,161,0.45)', backgroundColor: colors.cobaltWash },
-  medal: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surfaceHigh, alignItems: 'center', justifyContent: 'center' },
-  medalOn: { backgroundColor: colors.cobalt },
+  badge: { width: 116, gap: 8, backgroundColor: colors.surface, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.line, padding: 14 },
+  badgeOn: { borderColor: 'rgba(212,255,58,0.55)', backgroundColor: 'rgba(212,255,58,0.10)', shadowColor: '#d4ff3a', shadowOpacity: 0.35, shadowRadius: 14, shadowOffset: { width: 0, height: 4 } },
+  medal: { width: 52, height: 52, borderRadius: 26, backgroundColor: colors.surfaceHigh, alignItems: 'center', justifyContent: 'center' },
+  medalOn: { backgroundColor: colors.lime, shadowColor: '#d4ff3a', shadowOpacity: 0.8, shadowRadius: 12, shadowOffset: { width: 0, height: 0 } },
   badgeTitle: { minHeight: 40 },
 })

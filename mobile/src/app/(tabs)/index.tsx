@@ -212,16 +212,16 @@ function QuickLink({ icon, label, onPress, photo }: { icon: React.ReactNode; lab
 }
 
 const styles = StyleSheet.create({
-  heroPhoto: { borderWidth: 1, borderColor: colors.line },
+  heroPhoto: { borderWidth: 1, borderColor: 'rgba(25,227,161,0.35)', shadowColor: '#19e3a1', shadowOpacity: 0.35, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 10 },
   hero: { padding: 18, gap: 16 },
   rep: { alignSelf: 'stretch' },
   today: { gap: 6 },
   block: { gap: 12 },
   quick: { flexDirection: 'row', gap: 12 },
   quickItem: { flex: 1 },
-  quickPhoto: { height: 112, borderWidth: 1, borderColor: colors.line },
+  quickPhoto: { height: 132, borderWidth: 1, borderColor: colors.line },
   quickBody: { flex: 1, justifyContent: 'flex-end', gap: 6, padding: 12 },
-  step: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: colors.surface, borderRadius: radii.md, borderWidth: 1, borderColor: colors.line, padding: 14, minHeight: 64 },
-  stepIndex: { width: 40, height: 40, borderRadius: radii.sm, backgroundColor: colors.cobaltWash, alignItems: 'center', justifyContent: 'center' },
+  step: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: colors.surface, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.line, padding: 14, minHeight: 64 },
+  stepIndex: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.cobaltWash, alignItems: 'center', justifyContent: 'center' },
   stepText: { flex: 1, gap: 2 },
 })
