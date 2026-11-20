@@ -10,6 +10,7 @@ import { Camera, useCameraDevice, useCameraPermission } from 'react-native-visio
 import { SyncBadge } from '../../components/SyncBadge'
 import { useRealtime } from '../../features/useRealtime'
 import { usePoseEngine } from '../../features/usePoseEngine'
+import { warmUpBackend } from '../../lib/api'
 import { EXERCISES, isExerciseId } from '../../lib/exercises'
 import { formatDuration } from '../../lib/format'
 import { kv } from '../../lib/storage'
@@ -117,6 +118,9 @@ export default function Train() {
       return () => void deactivateKeepAwake('fitmentor-train')
     }
   }, [phase])
+
+  // Despierta el backend y la IA al entrar, antes de que empiece la cuenta atrás.
+  useFocusEffect(useCallback(() => warmUpBackend(), []))
 
   // Al salir de la pestaña se pausa, para no gastar batería con la cámara abierta.
   useFocusEffect(
