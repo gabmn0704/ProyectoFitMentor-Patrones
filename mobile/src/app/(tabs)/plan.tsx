@@ -14,6 +14,9 @@ import { Button } from '../../ui/Button'
 import { BibTile, Card } from '../../ui/Card'
 import { Meter } from '../../ui/Charts'
 import { Segmented } from '../../ui/Controls'
+import { PageHero } from '../../ui/PageHero'
+import { haptic } from '../../ui/haptics'
+import { Mascot } from '../../ui/Mascot'
 import { Pressable } from '../../ui/Pressable'
 import { Reveal, Screen, SectionTitle } from '../../ui/Screen'
 import { EmptyState, Notice } from '../../ui/States'
@@ -36,6 +39,7 @@ export default function Plan() {
   if (!body || !plan || !day) {
     return (
       <Screen title="Tu plan" eyebrow="Plan">
+        <PageHero state="worried" message="Aún no tengo tus datos para armar el plan." />
         <EmptyState icon={<Moon size={26} color={colors.textMuted} />} title="Aún no hay plan" hint="Completa tu perfil para calcular tu rutina y tu alimentación." action={{ label: 'Crear mi plan', onPress: () => router.push('/edit-body') }} />
       </Screen>
     )
@@ -46,10 +50,15 @@ export default function Plan() {
   return (
     <Screen title="Tu plan" eyebrow={`Semana ${week} · ${goalName(body.goal)}`}>
       <Reveal index={0} style={styles.gap}>
-        <Card tone="cobalt" style={styles.theme}>
-          <Text variant="label" color={colors.cobaltText}>{plan.deload ? 'Semana de descarga' : 'Esta semana'}</Text>
-          <Text variant="title">{plan.theme}</Text>
-        </Card>
+        <PageHero
+          state={day.kind === 'rest' ? 'rest' : plan.deload ? 'idle' : 'wave'}
+          message={day.kind === 'rest' ? 'Hoy toca recuperar. Tu cuerpo mejora mientras descansa.' : plan.deload ? 'Semana de descarga: baja la carga y cuida la técnica.' : 'Este es tu plan. Un día a la vez.'}
+        >
+          <View style={styles.theme}>
+            <Text variant="label" color={colors.cobaltText}>{plan.deload ? 'Semana de descarga' : 'Esta semana'}</Text>
+            <Text variant="title">{plan.theme}</Text>
+          </View>
+        </PageHero>
         <Segmented options={[{ value: 'routine', label: 'Rutina' }, { value: 'food', label: 'Alimentación' }]} value={tab} onChange={setTab} />
       </Reveal>
 
@@ -60,12 +69,13 @@ export default function Plan() {
           return (
             <Pressable
               key={item.index}
-              onPress={() => setSelected(item.index)}
+              onPress={() => { haptic.tap(); setSelected(item.index) }}
               accessibilityLabel={`${item.name}${isToday ? ', hoy' : ''}, ${item.kind === 'train' ? item.title : 'descanso'}`}
               accessibilityState={{ selected: active }}
               style={[styles.day, active && styles.dayOn, !active && isToday && styles.dayToday]}
             >
               <Text variant="label" color={active ? colors.onCobalt : colors.textMuted}>{DAY_SHORT[item.index]}</Text>
+              {isToday ? <Text variant="small" color={active ? colors.onCobalt : colors.vermilion} style={styles.todayTag}>hoy</Text> : null}
               <View style={[styles.dayMark, { backgroundColor: item.kind === 'train' ? (active ? colors.onCobalt : colors.cobaltText) : colors.lineStrong }]} />
             </Pressable>
           )
@@ -77,7 +87,10 @@ export default function Plan() {
           <SectionTitle trailing={day.kind === 'train' ? <View style={styles.time}><Timer size={14} color={colors.textMuted} /><Text variant="small" color={colors.textMuted}>{day.minutes} min</Text></View> : undefined}>{day.title}</SectionTitle>
           <Text color={colors.textMuted}>{day.focus}</Text>
           {day.kind === 'rest' ? (
-            <EmptyState icon={<Moon size={26} color={colors.textMuted} />} title="Día de descanso" hint="Camina 20 a 30 minutos o haz movilidad. Tu cuerpo mejora mientras recupera." />
+            <Card tone="signal" style={styles.restCard}>
+              <Mascot state="rest" size={96} message="Camina 20 a 30 minutos o haz movilidad." placement="right" />
+              <Text variant="small" color={colors.textMuted}>Descansar también es parte del plan.</Text>
+            </Card>
           ) : (
             day.items.map((item, index) => (
               <Reveal key={item.exercise} index={index}>
@@ -153,12 +166,14 @@ export default function Plan() {
 const styles = StyleSheet.create({
   gap: { gap: 12 },
   flex: { flex: 1 },
-  theme: { gap: 4, paddingVertical: 16 },
+  theme: { gap: 4 },
+  restCard: { gap: 10, padding: 14 },
   daysWrap: { flexGrow: 0, marginHorizontal: -20 },
   days: { paddingHorizontal: 20, gap: 8 },
-  day: { width: 52, height: 64, borderRadius: radii.md, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', gap: 8 },
+  day: { width: 54, height: 72, borderRadius: radii.md, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', gap: 8 },
   dayOn: { backgroundColor: colors.cobalt, borderColor: colors.cobalt },
   dayToday: { borderColor: colors.vermilion },
+  todayTag: { fontSize: 10, lineHeight: 12, marginTop: -4 },
   dayMark: { width: 8, height: 8, borderRadius: 2 },
   time: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   item: { gap: 10, padding: 16 },

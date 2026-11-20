@@ -82,7 +82,7 @@ export default function TabsLayout() {
 }
 
 const styles = StyleSheet.create({
-  bar: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: colors.field, borderTopWidth: 1, borderTopColor: colors.line, paddingTop: 8, paddingHorizontal: 6 },
+  bar: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: colors.field, borderTopWidth: 1, borderTopColor: colors.line, borderTopLeftRadius: radii.xl, borderTopRightRadius: radii.xl, paddingTop: 8, paddingHorizontal: 6 },
   inner: { flexDirection: 'row' },
   thumb: { position: 'absolute', top: 0, bottom: 0, left: 3, backgroundColor: colors.cobalt, borderRadius: radii.sm },
   item: { flex: 1, minHeight: 56, alignItems: 'center', justifyContent: 'center', gap: 3 },

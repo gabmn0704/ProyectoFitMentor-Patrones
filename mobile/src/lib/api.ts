@@ -90,14 +90,28 @@ interface RequestOptions {
 }
 
 const RETRYABLE_STATUS = new Set([500, 502, 503, 504])
+const RETRY_DELAY_MS = 400
 
-export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
+/** GET idénticos en vuelo (misma ruta y token) comparten una sola petición. */
+const inFlightGets = new Map<string, Promise<unknown>>()
+
+/** Los GET se deduplican mientras están en vuelo y se reintentan una vez ante un 5xx transitorio. */
+export function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
   if ((options.method ?? 'GET') !== 'GET') return send<T>(path, options)
+  const key = `${options.token ?? ''}|${path}`
+  const pending = inFlightGets.get(key)
+  if (pending) return pending as Promise<T>
+  const request = sendWithRetry<T>(path, options).finally(() => inFlightGets.delete(key))
+  inFlightGets.set(key, request)
+  return request
+}
+
+async function sendWithRetry<T>(path: string, options: RequestOptions): Promise<T> {
   try {
     return await send<T>(path, options)
   } catch (error) {
     if (!(error instanceof ApiError) || !RETRYABLE_STATUS.has(error.status)) throw error
-    await new Promise((resolve) => setTimeout(resolve, 400))
+    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS))
     return send<T>(path, options)
   }
 }
@@ -140,7 +154,44 @@ async function send<T>(path: string, options: RequestOptions): Promise<T> {
   return (await response.json()) as T
 }
 
-/** Despierta el backend (Render lo duerme). Se ignora cualquier resultado. */
-export function warmUpBackend(): void {
-  fetch(buildApiUrl('/api/exercises'), { method: 'GET' }).catch(() => undefined)
+const WARM_COOLDOWN_MS = 4 * 60_000
+const WARM_TIMEOUT_MS = 70_000
+let lastWarm = 0
+
+/**
+ * Despierta el backend (Render lo duerme y el primer intento tarda hasta un minuto; el servicio de IA
+ * despierta con él). Se lanza al abrir la app y al entrar en Entrenar o Coach; se limita a una vez cada
+ * pocos minutos y se ignora cualquier resultado.
+ */
+export function warmUpBackend(now = Date.now()): void {
+  if (now - lastWarm < WARM_COOLDOWN_MS) return
+  lastWarm = now
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), WARM_TIMEOUT_MS)
+  fetch(buildApiUrl('/api/exercises'), { method: 'GET', signal: controller.signal })
+    .catch(() => undefined)
+    .finally(() => clearTimeout(timer))
+}
+
+/**
+ * Comprueba si el backend ya responde: resuelve con los ms que tardó en llegar CUALQUIER respuesta HTTP
+ * (aunque sea 401) o null si no hubo red o se agotó el tiempo.
+ */
+export async function pingBackend(timeoutMs = 8_000): Promise<number | null> {
+  const started = Date.now()
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    await fetch(buildApiUrl('/api/exercises'), { method: 'GET', signal: controller.signal })
+    return Date.now() - started
+  } catch {
+    return null
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+/** Solo para pruebas. */
+export function resetWarmUp(): void {
+  lastWarm = 0
 }

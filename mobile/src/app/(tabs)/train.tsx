@@ -10,6 +10,7 @@ import { Camera, useCameraDevice, useCameraPermission } from 'react-native-visio
 import { SyncBadge } from '../../components/SyncBadge'
 import { useRealtime } from '../../features/useRealtime'
 import { usePoseEngine } from '../../features/usePoseEngine'
+import { warmUpBackend } from '../../lib/api'
 import { EXERCISES, isExerciseId } from '../../lib/exercises'
 import { formatDuration } from '../../lib/format'
 import { kv } from '../../lib/storage'
@@ -20,8 +21,9 @@ import { useData } from '../../state/data'
 import { colors, fonts, radii } from '../../theme'
 import { Button } from '../../ui/Button'
 import { BibTile, Card } from '../../ui/Card'
-import { Chip } from '../../ui/Controls'
 import { haptic } from '../../ui/haptics'
+import { Mascot } from '../../ui/Mascot'
+import { PageHero } from '../../ui/PageHero'
 import { Pressable } from '../../ui/Pressable'
 import { Notice } from '../../ui/States'
 import { Text } from '../../ui/Text'
@@ -116,6 +118,9 @@ export default function Train() {
       return () => void deactivateKeepAwake('fitmentor-train')
     }
   }, [phase])
+
+  // Despierta el backend y la IA al entrar, antes de que empiece la cuenta atrás.
+  useFocusEffect(useCallback(() => warmUpBackend(), []))
 
   // Al salir de la pestaña se pausa, para no gastar batería con la cámara abierta.
   useFocusEffect(
@@ -221,8 +226,16 @@ export default function Train() {
     return (
       <ScrollView style={styles.root} contentContainerStyle={[styles.content, { paddingTop: insets.top + 16, paddingBottom: 120 + insets.bottom }]} showsVerticalScrollIndicator={false}>
         <Animated.View entering={reduced ? undefined : FadeIn.duration(300)} style={styles.stack}>
-          <Text variant="label" color={colors.cobaltText}>Sesión terminada</Text>
-          <Text variant="headline" accessibilityRole="header">{meta.label}</Text>
+          <PageHero
+            state={summary.current.reps === 0 ? 'worried' : 'celebrate'}
+            size={116}
+            message={summary.current.reps === 0 ? 'No conté repeticiones. Probemos otra vez con el cuerpo completo en cámara.' : summary.current.accuracy >= 80 ? 'Sesión terminada con muy buena técnica.' : 'Sesión terminada. La próxima cuidamos la técnica.'}
+          >
+            <View>
+              <Text variant="label" color={colors.cobaltText}>Sesión terminada</Text>
+              <Text variant="headline" accessibilityRole="header">{meta.label}</Text>
+            </View>
+          </PageHero>
           <View style={styles.row}>
             <BibTile label={isHold ? 'Segundos' : 'Repeticiones'} value={summary.current.reps} band="cobalt" />
             <BibTile label="Técnica" value={summary.current.accuracy} suffix="%" band="ink" />
@@ -255,13 +268,24 @@ export default function Train() {
         <View style={styles.head}>
           <Text variant="label" color={colors.cobaltText}>Entrenar</Text>
           <Text variant="headline" accessibilityRole="header">Cámara y técnica</Text>
+          <Mascot state="idle" size={72} message={`${meta.label}: yo cuento, tú cuida la técnica.`} placement="right" interactive style={styles.headRep} />
         </View>
       ) : null}
 
       {phase === 'idle' ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail} style={styles.railWrap}>
           {ENGINE_EXERCISES.map((item) => (
-            <Chip key={item.id} label={item.label} selected={item.id === exercise} onPress={() => setExercise(item.id)} />
+            <Pressable
+              key={item.id}
+              onPress={() => { haptic.tap(); setExercise(item.id) }}
+              accessibilityRole="button"
+              accessibilityLabel={`${item.label}, meta ${item.target}`}
+              accessibilityState={{ selected: item.id === exercise }}
+              style={[styles.pick, item.id === exercise && styles.pickOn]}
+            >
+              <Text variant="bodyStrong" color={item.id === exercise ? colors.onCobalt : colors.text}>{item.label}</Text>
+              <Text variant="small" color={item.id === exercise ? colors.onCobalt : colors.textMuted}>{item.target} {item.unit === 'seconds' ? 's' : 'reps'}</Text>
+            </Pressable>
           ))}
         </ScrollView>
       ) : null}
@@ -304,6 +328,7 @@ export default function Train() {
 
         {phase === 'countdown' ? (
           <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.countdown} pointerEvents="none" accessibilityLiveRegion="polite">
+            <Mascot state={countdown === 0 ? 'cheer' : 'wave'} size={96} />
             <Text variant="display" style={styles.countNumber}>{countdown || '¡Ya!'}</Text>
           </Animated.View>
         ) : null}
@@ -384,6 +409,9 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 20 },
   stack: { gap: 16 },
   head: { paddingHorizontal: 20, gap: 4, marginBottom: 12 },
+  headRep: { alignSelf: 'stretch', marginTop: 6 },
+  pick: { minWidth: 104, minHeight: 56, paddingHorizontal: 14, paddingVertical: 8, borderRadius: radii.md, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface, justifyContent: 'center' },
+  pickOn: { backgroundColor: colors.cobalt, borderColor: colors.cobalt },
   railWrap: { flexGrow: 0, marginBottom: 12 },
   rail: { paddingHorizontal: 20, gap: 8 },
   camera: { flex: 1, marginHorizontal: 20, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.field, overflow: 'hidden', justifyContent: 'center' },
@@ -396,7 +424,7 @@ const styles = StyleSheet.create({
   pillText: { fontSize: 10.5, letterSpacing: 0.8 },
   dot: { width: 8, height: 8, borderRadius: 2 },
   countdown: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.scrim },
-  countNumber: { fontSize: 120, lineHeight: 124 },
+  countNumber: { fontSize: 100, lineHeight: 104 },
   hud: { position: 'absolute', left: 12, right: 12, bottom: 12, gap: 10 },
   hudRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
   bigNumber: { fontSize: 96, lineHeight: 100 },

@@ -17,6 +17,7 @@ import { Button } from '../../ui/Button'
 import { BibTile, Card } from '../../ui/Card'
 import { Segmented } from '../../ui/Controls'
 import { haptic } from '../../ui/haptics'
+import { PageHero } from '../../ui/PageHero'
 import { Reveal, Screen, SectionTitle } from '../../ui/Screen'
 import { Notice } from '../../ui/States'
 import { Text } from '../../ui/Text'
@@ -65,6 +66,7 @@ export default function Profile() {
   return (
     <Screen title="Perfil" eyebrow="Tu cuenta">
       <Reveal index={0}>
+        <PageHero state={pending ? 'idle' : 'wave'} message={pending ? 'Tienes sesiones por subir. Se sincronizan solas.' : `Tu cuenta está al día${body ? ` · semana ${currentWeek(body)}` : ''}.`} size={92}>
         <View style={styles.id}>
           <View style={styles.avatar} accessibilityElementsHidden>
             <Text variant="headline" color={colors.onCobalt}>{initials(user.name)}</Text>
@@ -74,6 +76,7 @@ export default function Profile() {
             <Text variant="small" color={colors.textMuted} numberOfLines={1}>{guest ? 'Cuenta de invitado' : (user.email ?? '')}</Text>
           </View>
         </View>
+        </PageHero>
       </Reveal>
 
       {guest ? <Notice tone="info">Eres invitado: tus sesiones se guardan, pero si cierras sesión no podrás recuperar la cuenta. Crea una cuenta para conservarlas.</Notice> : null}
@@ -126,7 +129,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   block: { gap: 12 },
   id: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  avatar: { width: 64, height: 64, borderRadius: radii.lg, backgroundColor: colors.cobalt, alignItems: 'center', justifyContent: 'center' },
+  avatar: { width: 56, height: 56, borderRadius: radii.lg, backgroundColor: colors.cobalt, alignItems: 'center', justifyContent: 'center' },
   plan: { gap: 12 },
   tiles: { flexDirection: 'row', gap: 12 },
   version: { textAlign: 'center', fontFamily: fonts.body },

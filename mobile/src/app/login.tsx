@@ -11,6 +11,7 @@ import { Button } from '../ui/Button'
 import { Field, Segmented } from '../ui/Controls'
 import { haptic } from '../ui/haptics'
 import { Logo } from '../ui/Logo'
+import { Mascot } from '../ui/Mascot'
 import { Pressable } from '../ui/Pressable'
 import { Notice } from '../ui/States'
 import { Text } from '../ui/Text'
@@ -112,6 +113,7 @@ export default function LoginScreen() {
           <Text color={colors.textMuted} style={styles.lede}>
             Tu coach con IA mira tu postura, cuenta tus repeticiones y te corrige al instante.
           </Text>
+          <Mascot state="wave" size={84} message="Hola, soy Rep. Yo cuento, tú cuida la técnica." placement="right" interactive style={styles.rep} />
           <View style={styles.proofs}>
             {PROOFS.map(({ icon: Icon, text }) => (
               <View key={text} style={styles.proof}>
@@ -231,6 +233,7 @@ const styles = StyleSheet.create({
   brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   wordmark: { fontFamily: fonts.displayBold, fontSize: 22, letterSpacing: -0.4 },
   hero: { gap: 14 },
+  rep: { alignSelf: 'stretch' },
   title: { fontFamily: fonts.display, fontSize: 76, lineHeight: 74, letterSpacing: -3, color: colors.text },
   accent: { color: colors.lime },
   lede: { fontSize: 16, lineHeight: 24, maxWidth: 340 },
