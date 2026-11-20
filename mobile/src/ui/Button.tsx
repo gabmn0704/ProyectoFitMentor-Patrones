@@ -1,0 +1,61 @@
+import type { ReactNode } from 'react'
+import { ActivityIndicator, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
+import { colors, hit, radii } from '../theme'
+import { Pressable } from './Pressable'
+import { Text } from './Text'
+
+type Variant = 'primary' | 'cobalt' | 'ghost' | 'danger'
+
+type Props = {
+  label: string
+  onPress?: () => void
+  variant?: Variant
+  icon?: ReactNode
+  loading?: boolean
+  disabled?: boolean
+  large?: boolean
+  style?: StyleProp<ViewStyle>
+  accessibilityHint?: string
+}
+
+const palette: Record<Variant, { bg: string; fg: string; border?: string }> = {
+  primary: { bg: colors.vermilion, fg: '#0a0c12' },
+  cobalt: { bg: colors.cobalt, fg: colors.onCobalt },
+  ghost: { bg: 'transparent', fg: colors.text, border: colors.lineStrong },
+  danger: { bg: 'transparent', fg: colors.signalText, border: colors.vermilion },
+}
+
+/** Botón táctil de 48 dp (58 dp en grande). Bermellón = la acción principal. */
+export function Button({ label, onPress, variant = 'primary', icon, loading, disabled, large, style, accessibilityHint }: Props) {
+  const tone = palette[variant]
+  const inactive = disabled || loading
+  return (
+    <Pressable
+      onPress={inactive ? undefined : onPress}
+      accessibilityLabel={label}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{ disabled: Boolean(inactive), busy: Boolean(loading) }}
+      style={[
+        styles.base,
+        { backgroundColor: tone.bg, minHeight: large ? 58 : hit, borderColor: tone.border ?? 'transparent', opacity: inactive ? 0.5 : 1 },
+        style,
+      ]}
+    >
+      {loading ? (
+        <ActivityIndicator color={tone.fg} />
+      ) : (
+        <View style={styles.row}>
+          {icon}
+          <Text variant="bodyStrong" color={tone.fg} style={{ fontSize: large ? 17 : 15 }}>
+            {label}
+          </Text>
+        </View>
+      )}
+    </Pressable>
+  )
+}
+
+const styles = StyleSheet.create({
+  base: { borderRadius: radii.sm, borderWidth: 1.5, paddingHorizontal: 24, alignItems: 'center', justifyContent: 'center' },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+})

@@ -1,4 +1,4 @@
-export type Exercise = 'squat' | 'push_up' | 'plank' | 'deadlift'
+export type Exercise = 'squat' | 'push_up' | 'plank' | 'deadlift' | 'lunge'
 export type PosePoint = { x: number; y: number; confidence: number }
 export type RepPhase = 'ready' | 'up' | 'descending' | 'bottom'
 export type PoseAnalysis = {
@@ -66,7 +66,7 @@ export function analyzePose(points: PosePoint[], exercise: Exercise): PoseAnalys
   if (exercise === 'plank' ? alignment === null : movementAngle === null) return null
 
   let score = 82
-  if (exercise === 'squat' && kneeAngle !== null) {
+  if ((exercise === 'squat' || exercise === 'lunge') && kneeAngle !== null) {
     score = kneeAngle > 145 ? 92 : kneeAngle < 55 ? 58 : Math.max(65, 98 - Math.abs(kneeAngle - 95) * 0.35)
   } else if (exercise === 'push_up' && elbowAngle !== null) {
     score = Math.max(45, 96 - (alignment ?? 0.2) * 180 - Math.max(0, 65 - elbowAngle) * 0.3)
@@ -77,7 +77,7 @@ export function analyzePose(points: PosePoint[], exercise: Exercise): PoseAnalys
   }
 
   let feedback = 'Buen control. Mantén el movimiento fluido.'
-  if (exercise === 'squat' && kneeAngle !== null) {
+  if ((exercise === 'squat' || exercise === 'lunge') && kneeAngle !== null) {
     feedback = kneeAngle > 145 ? 'Inicia el descenso llevando la cadera atrás.' : kneeAngle < 55 ? 'Reduce la profundidad y conserva el control.' : 'Rodillas flexionadas. Empuja el suelo para subir.'
   } else if (exercise === 'push_up') {
     feedback = (alignment ?? 0) > 0.13 ? 'Alinea hombros, cadera y tobillos.' : (elbowAngle ?? 180) < 75 ? 'Empuja el suelo y extiende los brazos.' : 'Cuerpo firme. Desciende con control.'
@@ -98,7 +98,7 @@ export function analyzePose(points: PosePoint[], exercise: Exercise): PoseAnalys
 
 export function advanceRepPhase(exercise: Exercise, phase: RepPhase, value: number): { phase: RepPhase; completed: boolean } {
   if (exercise === 'plank') return { phase, completed: false }
-  if (exercise === 'squat') {
+  if (exercise === 'squat' || exercise === 'lunge') {
     if (phase === 'ready' && value > 150) return { phase: 'up', completed: false }
     if (phase === 'up' && value < 125) return { phase: 'descending', completed: false }
     if (phase === 'descending' && value < 100) return { phase: 'bottom', completed: false }
