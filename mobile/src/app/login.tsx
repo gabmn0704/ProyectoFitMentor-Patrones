@@ -12,6 +12,7 @@ import { Field, Segmented } from '../ui/Controls'
 import { haptic } from '../ui/haptics'
 import { Logo } from '../ui/Logo'
 import { Mascot } from '../ui/Mascot'
+import { Photo } from '../ui/Photo'
 import { Pressable } from '../ui/Pressable'
 import { Notice } from '../ui/States'
 import { Text } from '../ui/Text'
@@ -105,25 +106,29 @@ export default function LoginScreen() {
           </Text>
         </Animated.View>
 
-        <Animated.View entering={enter(80)} style={styles.hero}>
-          <Text accessibilityRole="header" style={styles.title}>
-            Entrena{'\n'}
-            <Text style={[styles.title, styles.accent]}>bien.</Text>
-          </Text>
-          <Text color={colors.textMuted} style={styles.lede}>
-            Tu coach con IA mira tu postura, cuenta tus repeticiones y te corrige al instante.
-          </Text>
-          <Mascot state="wave" size={84} message="Hola, soy Rep. Yo cuento, tú cuida la técnica." placement="right" interactive style={styles.rep} />
-          <View style={styles.proofs}>
-            {PROOFS.map(({ icon: Icon, text }) => (
-              <View key={text} style={styles.proof}>
-                <Icon size={15} color={colors.mint} strokeWidth={2.2} />
-                <Text variant="small" color={colors.textMuted}>
-                  {text}
-                </Text>
+        <Animated.View entering={enter(80)}>
+          <Photo name="gym" shade={0.9} style={styles.heroPhoto}>
+            <View style={styles.hero}>
+              <Text accessibilityRole="header" style={styles.title}>
+                Entrena{'\n'}
+                <Text style={[styles.title, styles.accent]}>bien.</Text>
+              </Text>
+              <Text color={colors.text} style={styles.lede}>
+                Tu coach con IA mira tu postura, cuenta tus repeticiones y te corrige al instante.
+              </Text>
+              <Mascot state="wave" size={92} message="Hola, soy Rep. Yo cuento, tú cuida la técnica." placement="right" interactive style={styles.rep} />
+              <View style={styles.proofs}>
+                {PROOFS.map(({ icon: Icon, text }) => (
+                  <View key={text} style={styles.proof}>
+                    <Icon size={15} color={colors.lime} strokeWidth={2.2} />
+                    <Text variant="small" color={colors.text}>
+                      {text}
+                    </Text>
+                  </View>
+                ))}
               </View>
-            ))}
-          </View>
+            </View>
+          </Photo>
         </Animated.View>
 
         <Animated.View entering={enter(160)} style={styles.card}>
@@ -232,22 +237,23 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 20, gap: 26 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   wordmark: { fontFamily: fonts.displayBold, fontSize: 22, letterSpacing: -0.4 },
-  hero: { gap: 14 },
+  heroPhoto: { borderWidth: 1, borderColor: 'rgba(25,227,161,0.35)', shadowColor: '#19e3a1', shadowOpacity: 0.4, shadowRadius: 24, shadowOffset: { width: 0, height: 10 }, elevation: 10 },
+  hero: { gap: 14, padding: 20 },
   rep: { alignSelf: 'stretch' },
-  title: { fontFamily: fonts.display, fontSize: 76, lineHeight: 74, letterSpacing: -3, color: colors.text },
+  title: { fontFamily: fonts.display, fontSize: 68, lineHeight: 68, letterSpacing: -3, color: colors.text },
   accent: { color: colors.lime },
   lede: { fontSize: 16, lineHeight: 24, maxWidth: 340 },
   proofs: { gap: 8, marginTop: 2 },
-  proof: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  proof: { flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 7, borderRadius: radii.pill, backgroundColor: 'rgba(5,10,8,0.6)', borderWidth: 1, borderColor: colors.line },
   card: {
     gap: 14,
     padding: 20,
-    borderRadius: radii.xl + 4,
-    backgroundColor: 'rgba(15,24,20,0.82)',
+    borderRadius: radii.xl + 8,
+    backgroundColor: 'rgba(15,24,20,0.9)',
     borderWidth: 1,
     borderColor: 'rgba(25,227,161,0.22)',
     shadowColor: '#19e3a1',
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.3,
     shadowRadius: 32,
     shadowOffset: { width: 0, height: 12 },
     elevation: 6,
@@ -267,7 +273,7 @@ const styles = StyleSheet.create({
   secureText: { fontFamily: fonts.bodySemi, fontSize: 11 },
   cardTitle: { fontSize: 34, lineHeight: 36, marginTop: 2 },
   form: { gap: 14, marginTop: 4 },
-  cta: { borderRadius: radii.md, shadowColor: '#d4ff3a', shadowOpacity: 0.35, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 4 },
+  cta: { marginTop: 4 },
   eye: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', marginRight: -10 },
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
   rule: { flex: 1, height: 1, backgroundColor: colors.line },
