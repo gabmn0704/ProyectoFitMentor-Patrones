@@ -1,7 +1,7 @@
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import * as Speech from 'expo-speech'
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake'
-import { Camera as CameraIcon, Check, Pause, Play, RotateCcw, Save, ShieldCheck, Square, Volume2, VolumeX, Wifi, WifiOff } from 'lucide-react-native'
+import { Camera as CameraIcon, Check, Pause, Play, RotateCcw, Save, ShieldCheck, Square, TriangleAlert, Volume2, VolumeX, Wifi, WifiOff } from 'lucide-react-native'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, View } from 'react-native'
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, useReducedMotion, useSharedValue, withSequence, withTiming } from 'react-native-reanimated'
@@ -204,13 +204,16 @@ export default function Train() {
     }
   }
 
+  // El feedback local manda siempre (no espera a la red). La IA solo complementa cuando la pose es válida y no hay corrección.
   const liveFeedback = useMemo(() => {
-    if (realtime.connected && realtime.feedback) return { text: realtime.feedback.message, source: 'IA' }
-    if (snapshot.analysis) return { text: snapshot.analysis.feedback, source: 'Local' }
+    if (snapshot.framing.kind !== 'ok') return { text: snapshot.framing.message, source: 'Encuadre', blocked: true }
+    if (snapshot.analysis?.correction) return { text: snapshot.analysis.feedback, source: 'Local', blocked: false }
+    if (realtime.connected && realtime.feedback?.message) return { text: realtime.feedback.message, source: 'IA', blocked: false }
+    if (snapshot.analysis) return { text: snapshot.analysis.feedback, source: 'Local', blocked: false }
     return null
-  }, [realtime.connected, realtime.feedback, snapshot.analysis])
+  }, [realtime.connected, realtime.feedback, snapshot.analysis, snapshot.framing])
 
-  const score = realtime.connected && realtime.feedback ? realtime.feedback.score : (snapshot.analysis?.score ?? 0)
+  const score = snapshot.framing.kind !== 'ok' ? 0 : (snapshot.analysis?.score ?? 0)
   const cameraOn = (phase === 'countdown' || phase === 'running' || phase === 'paused') && hasPermission && Boolean(device)
   const live = phase === 'running' || phase === 'paused' || phase === 'countdown'
 
@@ -322,9 +325,9 @@ export default function Train() {
               </View>
             </View>
             <View style={styles.feedback}>
-              {snapshot.analysis ? <Check size={16} color={colors.good} /> : <ActivityIndicator size="small" color={colors.cobaltText} />}
-              <Text variant="small" style={styles.feedbackText} numberOfLines={2}>
-                {phase === 'paused' ? 'Sesión en pausa' : liveFeedback ? liveFeedback.text : snapshot.visibleJoints > 0 ? 'Muéstrate de cuerpo completo para empezar.' : 'Buscando tu cuerpo en el encuadre…'}
+              {liveFeedback && !liveFeedback.blocked ? <Check size={16} color={colors.good} /> : snapshot.visibleJoints > 0 ? <TriangleAlert size={16} color={colors.dangerText} /> : <ActivityIndicator size="small" color={colors.cobaltText} />}
+              <Text variant="small" style={styles.feedbackText} numberOfLines={2} accessibilityLiveRegion="polite">
+                {phase === 'paused' ? 'Sesión en pausa' : liveFeedback ? liveFeedback.text : 'Buscando tu cuerpo en el encuadre…'}
               </Text>
             </View>
           </View>
