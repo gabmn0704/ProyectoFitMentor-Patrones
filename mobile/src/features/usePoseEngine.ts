@@ -10,14 +10,29 @@ import { FramingGate, type FramingKind, VoiceCoach } from '../lib/pose-validatio
 
 const modelSource = { url: MOVENET_URL }
 
-function poseFromOutput(buffer: ArrayBuffer): PosePoint[] {
+/**
+ * Convierte la salida de MoveNet (coordenadas del cuadrado 192x192 con barras negras por `contain`)
+ * a coordenadas normalizadas 0..1 del fotograma real, para que los márgenes y proporciones sean fiables.
+ */
+function poseFromOutput(buffer: ArrayBuffer, frameWidth: number, frameHeight: number): PosePoint[] {
   'worklet'
   const values = new Float32Array(buffer)
+  const longest = Math.max(frameWidth, frameHeight, 1)
+  const contentX = frameWidth / longest
+  const contentY = frameHeight / longest
+  const offsetX = (1 - contentX) / 2
+  const offsetY = (1 - contentY) / 2
   const points: PosePoint[] = []
   for (let index = 0; index < 17; index++) {
-    const y = values[index * 3] ?? 0
-    const x = values[index * 3 + 1] ?? 0
-    points.push({ x: x > 1 ? x / 192 : x, y: y > 1 ? y / 192 : y, confidence: values[index * 3 + 2] ?? 0 })
+    const rawY = values[index * 3] ?? 0
+    const rawX = values[index * 3 + 1] ?? 0
+    const y = rawY > 1 ? rawY / 192 : rawY
+    const x = rawX > 1 ? rawX / 192 : rawX
+    points.push({
+      x: Math.min(1, Math.max(0, (x - offsetX) / contentX)),
+      y: Math.min(1, Math.max(0, (y - offsetY) / contentY)),
+      confidence: values[index * 3 + 2] ?? 0,
+    })
   }
   return points
 }
@@ -159,17 +174,21 @@ export function usePoseEngine({ exercise, running, voice, onPoints }: Options) {
 
   const frameOutput = useFrameOutput({
     pixelFormat: 'yuv',
+    // Sin esto el fotograma llega girado 90° (orientación del sensor) y MoveNet ve a la persona tumbada.
+    enablePhysicalBufferRotation: true,
     onFrame(frame) {
       'worklet'
       try {
         if (!model || !resizer) return
+        const frameWidth = frame.width
+        const frameHeight = frame.height
         const resized = resizer.resize(frame)
         const pixels = new Float32Array(resized.getPixelBuffer())
         resized.dispose()
         const inputPixels = new Float32Array(pixels.length)
         for (let index = 0; index < pixels.length; index++) inputPixels[index] = pixels[index] * 255
         const outputs = model.runSync([inputPixels.buffer])
-        if (outputs[0]) scheduleOnRN(receivePose, poseFromOutput(outputs[0]))
+        if (outputs[0]) scheduleOnRN(receivePose, poseFromOutput(outputs[0], frameWidth, frameHeight))
       } catch {
         // Un fotograma fallido no debe detener la sesión.
       } finally {
