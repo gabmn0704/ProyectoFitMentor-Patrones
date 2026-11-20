@@ -8,6 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { AuthProvider, useAuth } from '../state/auth'
 import { DataProvider, useData } from '../state/data'
 import { colors } from '../theme'
+import { IntroSplash } from '../ui/IntroSplash'
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined)
 
@@ -56,6 +57,7 @@ export default function RootLayout() {
       <AuthProvider>
         <DataProvider>
           <Gate />
+          <IntroSplash />
         </DataProvider>
       </AuthProvider>
     </SafeAreaProvider>
