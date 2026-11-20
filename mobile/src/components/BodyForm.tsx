@@ -6,6 +6,7 @@ import { colors, radii } from '../theme'
 import { Button } from '../ui/Button'
 import { Chip, Field, Segmented } from '../ui/Controls'
 import { haptic } from '../ui/haptics'
+import { Mascot } from '../ui/Mascot'
 import { Text } from '../ui/Text'
 
 type Props = {
@@ -69,6 +70,7 @@ export function BodyForm({ initial, title, lead, submitLabel, onSubmit, onCancel
         <View style={styles.head}>
           <Text variant="headline" accessibilityRole="header">{title}</Text>
           <Text color={colors.textMuted}>{lead}</Text>
+          <Mascot state="wave" size={84} message="Con tus datos armo un plan a tu medida." placement="right" style={{ alignSelf: 'stretch', marginTop: 4 }} />
         </View>
 
         <View style={styles.group}>
