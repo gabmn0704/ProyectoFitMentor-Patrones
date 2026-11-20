@@ -6,6 +6,7 @@ import { useResizer } from 'react-native-vision-camera-resizer'
 import { scheduleOnRN } from 'react-native-worklets'
 import { MOVENET_URL } from '../lib/config'
 import { advanceRepPhase, analyzePose, type Exercise, type PoseAnalysis, type PosePoint, type RepPhase } from '../lib/pose-analysis'
+import { FramingGate, type FramingKind, VoiceCoach } from '../lib/pose-validation'
 
 const modelSource = { url: MOVENET_URL }
 
@@ -36,7 +37,15 @@ export type PoseSnapshot = {
   analysis: PoseAnalysis | null
   phase: RepPhase
   visibleJoints: number
+  /** Estado del encuadre/postura inicial. Con `kind !== 'ok'` no se cuenta ni se corrige. */
+  framing: { kind: FramingKind; message: string }
 }
+
+const INITIAL_SNAPSHOT: PoseSnapshot = { reps: 0, holdSeconds: 0, analysis: null, phase: 'ready', visibleJoints: 0, framing: { kind: 'not_visible', message: 'Buscando tu cuerpo en el encuadre…' } }
+
+/** Frases de voz: cada tipo tiene su propio enfriamiento; las repeticiones nunca se silencian. */
+const VOICE_COOLDOWN_MS: Record<string, number> = { rep: 0, too_deep: 5000, alignment: 6000, hips: 6000, back_rounded: 5000 }
+const FEEDBACK_MIN_INTERVAL_MS = 120
 
 export type ModelStatus = 'loading' | 'ready' | 'error'
 
@@ -50,7 +59,7 @@ export function usePoseEngine({ exercise, running, voice, onPoints }: Options) {
   const model = modelState.state === 'loaded' ? modelState.model : undefined
   const { resizer, error: resizerError } = useResizer({ width: 192, height: 192, channelOrder: 'rgb', dataType: 'float32', pixelLayout: 'interleaved', scaleMode: 'contain' })
 
-  const [snapshot, setSnapshot] = useState<PoseSnapshot>({ reps: 0, holdSeconds: 0, analysis: null, phase: 'ready', visibleJoints: 0 })
+  const [snapshot, setSnapshot] = useState<PoseSnapshot>(INITIAL_SNAPSHOT)
   const refs = useRef({
     exercise,
     running,
@@ -62,7 +71,14 @@ export function usePoseEngine({ exercise, running, voice, onPoints }: Options) {
     plankStart: null as number | null,
     holdSeconds: 0,
     lastFeedbackAt: 0,
-    lastSpokenAt: 0,
+    gate: new FramingGate(),
+    voiceCoach: new VoiceCoach(
+      (text) => void Speech.speak(text, { language: 'es-ES', rate: 1.05 }),
+      () => void Speech.stop(),
+      VOICE_COOLDOWN_MS,
+      8000,
+    ),
+    last: INITIAL_SNAPSHOT,
     scoreSum: 0,
     scoreCount: 0,
   })
@@ -71,57 +87,75 @@ export function usePoseEngine({ exercise, running, voice, onPoints }: Options) {
   refs.current.voice = voice
   refs.current.onPoints = onPoints
 
+  const publish = useCallback((s: typeof refs.current, next: PoseSnapshot, now: number) => {
+    const previous = s.last
+    const changed =
+      previous.reps !== next.reps ||
+      previous.holdSeconds !== next.holdSeconds ||
+      previous.phase !== next.phase ||
+      previous.framing.kind !== next.framing.kind ||
+      previous.analysis?.feedback !== next.analysis?.feedback ||
+      (previous.analysis === null) !== (next.analysis === null) ||
+      Math.abs((previous.analysis?.score ?? 0) - (next.analysis?.score ?? 0)) >= 4
+    // Los cambios de mensaje/repetición pasan al instante; el resto, como mucho cada 120 ms.
+    const urgent = previous.framing.kind !== next.framing.kind || previous.reps !== next.reps
+    if (!changed || (!urgent && now - s.lastFeedbackAt < FEEDBACK_MIN_INTERVAL_MS)) return
+    s.lastFeedbackAt = now
+    s.last = next
+    setSnapshot(next)
+  }, [])
+
+  /**
+   * Todo el feedback es local: nunca espera a la red. El estado de React solo cambia cuando cambia
+   * lo que se ve en pantalla (mensaje, repeticiones, fase, puntuación), no en cada fotograma.
+   */
   const receivePose = useCallback((points: PosePoint[]) => {
     const s = refs.current
     if (!s.running) return
     const now = Date.now()
     const selected = s.exercise
-    s.onPoints?.(points)
     const visibleJoints = points.filter((point) => point.confidence >= 0.3).length
-    const result = analyzePose(points, selected)
+    const framing = s.gate.push(points, selected)
 
-    if (!result) {
+    let analysis: PoseAnalysis | null = null
+    if (framing.kind === 'ok') {
+      s.onPoints?.(points)
+      analysis = analyzePose(points, selected)
+    }
+
+    if (!analysis) {
       if (selected === 'plank') s.plankStart = null
-      if (now - s.lastFeedbackAt >= 300) {
-        s.lastFeedbackAt = now
-        setSnapshot((previous) => ({ ...previous, analysis: null, visibleJoints }))
-      }
+      if (framing.kind !== 'ok' && framing.confirmed && s.voice) s.voiceCoach.say(framing.kind, framing.message, now)
+      publish(s, { ...s.last, analysis: null, visibleJoints, framing: { kind: framing.kind, message: framing.message } }, now)
       return
     }
 
-    s.scoreSum += result.score
+    s.scoreSum += analysis.score
     s.scoreCount += 1
 
     if (selected === 'plank') {
-      if (result.score >= 55) {
+      if (analysis.score >= 55) {
         s.plankStart ??= now - s.holdSeconds * 1000
         s.holdSeconds = Math.floor((now - s.plankStart) / 1000)
       } else {
         s.plankStart = null
       }
-    } else if (result.movementAngle !== null) {
-      const filtered = s.lastAngle === null ? result.movementAngle : s.lastAngle * 0.7 + result.movementAngle * 0.3
+    } else if (analysis.movementAngle !== null) {
+      const filtered = s.lastAngle === null ? analysis.movementAngle : s.lastAngle * 0.7 + analysis.movementAngle * 0.3
       s.lastAngle = filtered
       const next = advanceRepPhase(selected, s.phase, filtered)
       s.phase = next.phase
       if (next.completed) {
         s.reps += 1
-        if (s.voice && now - s.lastSpokenAt > 1500) {
-          s.lastSpokenAt = now
-          void Speech.speak(String(s.reps), { language: 'es-ES', rate: 1.05 })
-        }
+        if (s.voice) s.voiceCoach.say('rep', String(s.reps), now)
       }
     }
 
-    if (now - s.lastFeedbackAt >= 180) {
-      s.lastFeedbackAt = now
-      setSnapshot({ reps: s.reps, holdSeconds: s.holdSeconds, analysis: result, phase: s.phase, visibleJoints })
-      if (s.voice && now - s.lastSpokenAt > 4500 && result.score < 72) {
-        s.lastSpokenAt = now
-        void Speech.speak(result.feedback, { language: 'es-ES', rate: 1 })
-      }
-    }
-  }, [])
+    // Una corrección a la vez; si no hay, se queda la indicación de fase.
+    if (s.voice && analysis.correction && s.phase !== 'ready') s.voiceCoach.say(analysis.correction, analysis.feedback, now)
+
+    publish(s, { reps: s.reps, holdSeconds: s.holdSeconds, analysis, phase: s.phase, visibleJoints, framing: { kind: 'ok', message: '' } }, now)
+  }, [publish])
 
   const frameOutput = useFrameOutput({
     pixelFormat: 'yuv',
@@ -154,8 +188,10 @@ export function usePoseEngine({ exercise, running, voice, onPoints }: Options) {
     s.holdSeconds = 0
     s.scoreSum = 0
     s.scoreCount = 0
-    void Speech.stop()
-    setSnapshot({ reps: 0, holdSeconds: 0, analysis: null, phase: 'ready', visibleJoints: 0 })
+    s.gate.reset()
+    s.voiceCoach.reset()
+    s.last = INITIAL_SNAPSHOT
+    setSnapshot(INITIAL_SNAPSHOT)
   }, [])
 
   /** La plancha deja de contar al pausar. */

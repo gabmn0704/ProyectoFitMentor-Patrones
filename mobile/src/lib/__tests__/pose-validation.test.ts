@@ -141,3 +141,17 @@ describe('VoiceCoach', () => {
     expect(stops).toBe(5)
   })
 })
+
+describe('flujo completo sin spam de voz', () => {
+  it('60 fotogramas sentado a 15 fps hablan como mucho una vez cada 8 s', () => {
+    const spoken: string[] = []
+    const coach = new VoiceCoach((text) => spoken.push(text), () => undefined, {}, 8000)
+    const gate = new FramingGate()
+    for (let frame = 0; frame < 60; frame++) {
+      const out = gate.push(seated(), 'squat')
+      if (out.confirmed && out.kind !== 'ok') coach.say(out.kind, out.message, frame * 66)
+    }
+    expect(spoken).toHaveLength(1)
+    expect(spoken[0]).toMatch(/Estás sentado/)
+  })
+})

@@ -58,10 +58,6 @@ function seen(points: PosePoint[], index: number): PosePoint | null {
   return value && value.confidence >= SEEN ? value : null
 }
 
-function mid(a: PosePoint, b: PosePoint): { x: number; y: number } {
-  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
-}
-
 /** Lado del cuerpo con la cadena hombro-cadera-rodilla-tobillo más completa y fiable. */
 function bestSide(points: PosePoint[], keys: Array<keyof Side>): Side {
   const score = (side: Side) => keys.reduce((sum, key) => sum + (points[side[key]]?.confidence ?? 0), 0)
@@ -154,6 +150,8 @@ export type GateOutput = {
   message: string
   /** Verdadero solo en el fotograma en que el estado estable cambia de tipo. */
   changed: boolean
+  /** Falso hasta que el antirrebote tomó su primera decisión (no hablar antes). */
+  confirmed: boolean
 }
 
 /**
@@ -165,6 +163,7 @@ export class FramingGate {
   private candidate: FramingKind = 'not_visible'
   private streak = 0
   private started = false
+  private confirmed = false
 
   constructor(
     private readonly issueFrames = 3,
@@ -185,6 +184,7 @@ export class FramingGate {
     this.candidate = 'not_visible'
     this.streak = 0
     this.started = false
+    this.confirmed = false
   }
 
   push(points: PosePoint[], exercise: Exercise): GateOutput {
@@ -196,6 +196,7 @@ export class FramingGate {
     }
     const needed = result.kind === 'ok' ? this.okFrames : this.issueFrames
     let changed = false
+    if (this.streak >= needed) this.confirmed = true
     if (this.streak >= needed && result.kind !== this.stable.kind) {
       this.stable = result
       changed = true
@@ -203,7 +204,7 @@ export class FramingGate {
       this.stable = result
     }
     if (this.stable.kind === 'ok') this.started = true
-    return { kind: this.stable.kind, message: this.stable.message, changed }
+    return { kind: this.stable.kind, message: this.stable.message, changed, confirmed: this.confirmed }
   }
 }
 
