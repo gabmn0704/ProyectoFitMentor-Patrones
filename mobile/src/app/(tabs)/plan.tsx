@@ -1,8 +1,8 @@
 import { router } from 'expo-router'
-import { Camera, ChevronDown, ChevronUp, Droplets, Moon, Timer } from 'lucide-react-native'
+import { BookOpen, Camera, ChevronDown, ChevronUp, Droplets, Moon, Play, Timer } from 'lucide-react-native'
 import { useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
-import { catalogLabel } from '../../lib/catalog'
+import { catalogLabel, type CatalogId } from '../../lib/catalog'
 import { goalName, currentWeek } from '../../lib/profile'
 import { mealPlanForDay } from '../../lib/meals'
 import { postWorkoutTip } from '../../lib/nutrition'
@@ -19,6 +19,7 @@ import { haptic } from '../../ui/haptics'
 import { Mascot } from '../../ui/Mascot'
 import { Pressable } from '../../ui/Pressable'
 import { Reveal, Screen, SectionTitle } from '../../ui/Screen'
+import { ExerciseGuideSheet } from '../../ui/ExerciseGuideSheet'
 import { EmptyState, Notice } from '../../ui/States'
 import { Text } from '../../ui/Text'
 
@@ -30,6 +31,7 @@ export default function Plan() {
   const [tab, setTab] = useState<Tab>('routine')
   const [selected, setSelected] = useState(todayIndex())
   const [open, setOpen] = useState<string | null>(null)
+  const [guide, setGuide] = useState<{ item: PlanItem; guided: boolean } | null>(null)
 
   const week = body ? currentWeek(body) : 1
   const plan = useMemo(() => (body && user ? buildWeekPlan(body, user.level, week) : null), [body, user, week])
@@ -105,11 +107,15 @@ export default function Plan() {
                     </View>
                   </View>
                   <Text variant="small" color={colors.textSubtle}>{item.note}</Text>
-                  {item.engine ? (
-                    <Button label="Medir con la cámara" variant="ghost" onPress={() => train(item)} icon={<Camera size={16} color={colors.text} />} />
-                  ) : (
-                    <Text variant="small" color={colors.textSubtle}>Se hace con la guía: marca tus series al terminar.</Text>
-                  )}
+                  <View style={styles.actions}>
+                    <Button label="Ver técnica" variant="ghost" onPress={() => setGuide({ item, guided: false })} icon={<BookOpen size={16} color={colors.text} />} style={styles.flex} />
+                    {item.engine ? (
+                      <Button label="Con cámara" variant="ghost" onPress={() => train(item)} icon={<Camera size={16} color={colors.text} />} style={styles.flex} />
+                    ) : (
+                      <Button label="Hacer con guía" onPress={() => setGuide({ item, guided: true })} icon={<Play size={16} color="#0a0c12" fill="#0a0c12" />} style={styles.flex} />
+                    )}
+                  </View>
+                  {item.engine ? null : <Text variant="small" color={colors.textSubtle}>Sin cámara: sigue la técnica y marca tus series con su descanso.</Text>}
                 </Card>
               </Reveal>
             ))
@@ -159,12 +165,19 @@ export default function Plan() {
           {day.kind === 'train' ? <Notice>{postWorkoutTip(body.goal)}</Notice> : null}
         </View>
       ) : null}
+      <ExerciseGuideSheet
+        exercise={guide ? (guide.item.exercise as CatalogId) : null}
+        onClose={() => setGuide(null)}
+        session={guide?.guided ? { sets: guide.item.sets, target: guide.item.target, unit: guide.item.unit === 'seconds' ? 'seconds' : 'reps', restSec: guide.item.restSec, perSide: guide.item.perSide } : undefined}
+        onTrain={guide?.item.engine ? () => { const item = guide.item; setGuide(null); train(item) } : undefined}
+      />
     </Screen>
   )
 }
 
 const styles = StyleSheet.create({
   gap: { gap: 12 },
+  actions: { flexDirection: 'row', gap: 10 },
   flex: { flex: 1 },
   theme: { gap: 4 },
   restCard: { gap: 10, padding: 14 },
