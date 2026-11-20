@@ -14,6 +14,7 @@ import { useData } from '../../state/data'
 import { colors, fonts, radii } from '../../theme'
 import { Chip } from '../../ui/Controls'
 import { haptic } from '../../ui/haptics'
+import { Mascot } from '../../ui/Mascot'
 import { Pressable } from '../../ui/Pressable'
 import { Skeleton } from '../../ui/States'
 import { Text } from '../../ui/Text'
@@ -82,8 +83,11 @@ export default function Coach() {
   return (
     <KeyboardAvoidingView style={[styles.root, { paddingTop: insets.top + 12 }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.head}>
-        <Text variant="label" color={colors.cobaltText}>Coach</Text>
-        <Text variant="headline" accessibilityRole="header">Pregúntale a tu coach</Text>
+        <Mascot state={sending ? 'count' : messages.length ? 'idle' : 'wave'} size={68} interactive />
+        <View style={styles.headText}>
+          <Text variant="label" color={colors.cobaltText}>Coach · Rep</Text>
+          <Text variant="title" accessibilityRole="header">Pregúntale a tu coach</Text>
+        </View>
       </View>
 
       <FlatList
@@ -148,7 +152,8 @@ export default function Coach() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
-  head: { paddingHorizontal: 20, gap: 4, marginBottom: 8 },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 20, marginBottom: 8 },
+  headText: { flex: 1, gap: 2 },
   list: { paddingHorizontal: 20, paddingTop: 8, gap: 12, flexGrow: 1 },
   footer: { gap: 12 },
   bubble: { maxWidth: '88%', borderRadius: radii.lg, paddingHorizontal: 16, paddingVertical: 12, gap: 6 },
