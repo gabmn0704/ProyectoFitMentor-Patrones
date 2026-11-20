@@ -92,11 +92,11 @@ export function Field({ label, error, right, style, ...rest }: FieldProps) {
 }
 
 const styles = StyleSheet.create({
-  chip: { minHeight: 40, paddingHorizontal: 14, borderRadius: radii.sm, borderWidth: 1, flexDirection: 'row', alignItems: 'center', gap: 6 },
+  chip: { minHeight: 42, paddingHorizontal: 16, borderRadius: radii.pill, borderWidth: 1, flexDirection: 'row', alignItems: 'center', gap: 6 },
   chipOn: { backgroundColor: colors.cobalt, borderColor: colors.cobalt },
   chipOff: { backgroundColor: colors.surface, borderColor: colors.lineStrong },
-  segmented: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: radii.md, padding: 4, borderWidth: 1, borderColor: colors.line },
-  thumb: { position: 'absolute', top: 4, bottom: 4, left: 4, backgroundColor: colors.cobalt, borderRadius: radii.sm },
+  segmented: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: radii.pill, padding: 4, borderWidth: 1, borderColor: colors.lineStrong },
+  thumb: { position: 'absolute', top: 4, bottom: 4, left: 4, backgroundColor: colors.cobalt, borderRadius: radii.pill, shadowColor: '#19e3a1', shadowOpacity: 0.6, shadowRadius: 10, shadowOffset: { width: 0, height: 0 } },
   segment: { flex: 1, minHeight: 40, alignItems: 'center', justifyContent: 'center' },
   field: { gap: 6 },
   inputWrap: {
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surface,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     borderWidth: 1.5,
     borderColor: colors.lineStrong,
     paddingHorizontal: 14,

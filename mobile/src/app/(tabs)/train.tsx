@@ -4,7 +4,7 @@ import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake'
 import { Camera as CameraIcon, Check, Pause, Play, RotateCcw, Save, ShieldCheck, Square, TriangleAlert, Volume2, VolumeX, Wifi, WifiOff } from 'lucide-react-native'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, View } from 'react-native'
-import Animated, { FadeIn, FadeOut, useAnimatedStyle, useReducedMotion, useSharedValue, withSequence, withTiming } from 'react-native-reanimated'
+import Animated, { FadeIn, FadeOut, ZoomIn, useAnimatedStyle, useReducedMotion, useSharedValue, withSequence, withTiming } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera'
 import { SyncBadge } from '../../components/SyncBadge'
@@ -98,16 +98,24 @@ export default function Train() {
     return () => clearInterval(timer)
   }, [running])
 
+  const voiceRef = useRef(voice)
+  voiceRef.current = voice
+
   // Cuenta atrás 3-2-1.
   useEffect(() => {
     if (phase !== 'countdown') return
+    // Como en la web: la cuenta atrás se dice en voz alta (3, 2, 1, ¡Ya!) si la voz está activada.
+    if (voiceRef.current) {
+      void Speech.stop()
+      void Speech.speak(countdown === 0 ? '¡Ya!' : String(countdown), { language: 'es-ES', rate: 1.05 })
+    }
     if (countdown === 0) {
       haptic.success()
-      setPhase('running')
-      return
+      const done = setTimeout(() => setPhase('running'), 450)
+      return () => clearTimeout(done)
     }
     haptic.medium()
-    const timer = setTimeout(() => setCountdown((value) => value - 1), 900)
+    const timer = setTimeout(() => setCountdown((value) => value - 1), 1000)
     return () => clearTimeout(timer)
   }, [phase, countdown])
 
@@ -329,7 +337,9 @@ export default function Train() {
         {phase === 'countdown' ? (
           <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.countdown} pointerEvents="none" accessibilityLiveRegion="polite">
             <Mascot state={countdown === 0 ? 'cheer' : 'wave'} size={96} />
-            <Text variant="display" style={styles.countNumber}>{countdown || '¡Ya!'}</Text>
+            <Animated.View key={countdown} entering={ZoomIn.springify().damping(9).stiffness(160)} style={styles.countBadge}>
+              <Text variant="display" color={countdown === 0 ? colors.lime : colors.mint} style={styles.countNumber}>{countdown || '¡Ya!'}</Text>
+            </Animated.View>
           </Animated.View>
         ) : null}
 
@@ -424,7 +434,8 @@ const styles = StyleSheet.create({
   pillText: { fontSize: 10.5, letterSpacing: 0.8 },
   dot: { width: 8, height: 8, borderRadius: 2 },
   countdown: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.scrim },
-  countNumber: { fontSize: 100, lineHeight: 104 },
+  countBadge: { minWidth: 190, alignItems: 'center', justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 28, borderRadius: 120, borderWidth: 2, borderColor: 'rgba(25,227,161,0.5)', backgroundColor: 'rgba(5,10,8,0.55)', shadowColor: '#19e3a1', shadowOpacity: 0.8, shadowRadius: 30, shadowOffset: { width: 0, height: 0 } },
+  countNumber: { fontSize: 112, lineHeight: 120 },
   hud: { position: 'absolute', left: 12, right: 12, bottom: 12, gap: 10 },
   hudRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
   bigNumber: { fontSize: 96, lineHeight: 100 },

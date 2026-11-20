@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withTiming } from 'react-native-reanimated'
 import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg'
-import { colors, fonts, radii } from '../theme'
+import { colors, fonts } from '../theme'
 import { Text } from './Text'
 
 /** Número que sube hasta su valor (odómetro simplificado). Estático con movimiento reducido. */
@@ -126,7 +126,7 @@ export function Ring({ percent, size = 120, stroke = 12, children }: { percent: 
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={colors.vermilion}
+          stroke={colors.lime}
           strokeWidth={stroke}
           fill="none"
           strokeLinecap="round"
@@ -154,9 +154,9 @@ const styles = StyleSheet.create({
   lanes: { gap: 10 },
   lane: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   laneDay: { width: 32 },
-  track: { flex: 1, height: 14, backgroundColor: colors.surfaceHigh, borderRadius: radii.xs, overflow: 'hidden' },
-  bar: { height: '100%', borderRadius: radii.xs },
+  track: { flex: 1, height: 18, backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: 9, overflow: 'hidden' },
+  bar: { height: '100%', borderRadius: 9 },
   laneValue: { width: 38, textAlign: 'right', fontFamily: fonts.displayBold },
-  meter: { height: 6, backgroundColor: colors.surfaceHigh, borderRadius: 3, overflow: 'hidden' },
-  meterFill: { height: '100%', borderRadius: 3 },
+  meter: { height: 8, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 4, overflow: 'hidden' },
+  meterFill: { height: '100%', borderRadius: 4, shadowOpacity: 0.8, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } },
 })

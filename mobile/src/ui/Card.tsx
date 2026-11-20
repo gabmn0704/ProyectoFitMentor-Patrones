@@ -41,40 +41,37 @@ type BibProps = {
   style?: StyleProp<ViewStyle>
 }
 
-/** Dorsal: banda de color con agujero, línea de corte punteada y numeral grande. */
+/** Cifra destacada: tarjeta con degradado y número grande. `band` elige el color de acento. */
 export function BibTile({ label, value, suffix, foot, band = 'cobalt', style }: BibProps) {
-  const bandColor = band === 'cobalt' ? colors.cobalt : band === 'signal' ? colors.vermilion : colors.surfaceHigh
+  const accent = band === 'signal' ? colors.lime : band === 'ink' ? colors.textMuted : colors.mint
+  const wash: Array<[number, string, number]> = band === 'ink' ? [[0, '#1c2c25', 1], [1, '#0d1612', 1]] : [[0, accent, 0.24], [1, '#0a110e', 1]]
   return (
-    <View style={[styles.bib, style]} accessible accessibilityLabel={`${label}: ${value}${suffix ?? ''}${foot ? `. ${foot}` : ''}`}>
-      <View style={[styles.band, { backgroundColor: bandColor }]}>
-        <View style={styles.hole} />
-        <Text variant="label" color={band === 'ink' ? colors.textMuted : colors.onCobalt} numberOfLines={1} style={styles.bandText}>
+    <View style={[styles.bib, { shadowColor: accent }, style]} accessible accessibilityLabel={`${label}: ${value}${suffix ?? ''}${foot ? `. ${foot}` : ''}`}>
+      <GradientFill stops={wash} />
+      <View style={styles.bibHead}>
+        <View style={[styles.bibDot, { backgroundColor: accent }]} />
+        <Text variant="label" color={colors.textMuted} numberOfLines={1} style={styles.bandText}>
           {label}
         </Text>
       </View>
-      <View style={styles.tear} />
-      <View style={styles.bibBody}>
-        <Text variant="numeral" style={styles.bibValue} numberOfLines={1} adjustsFontSizeToFit>
-          {value}
-          {suffix ? <Text variant="title" color={colors.textMuted}>{` ${suffix}`}</Text> : null}
+      <Text variant="numeral" style={styles.bibValue} numberOfLines={1} adjustsFontSizeToFit color={band === 'ink' ? colors.text : accent}>
+        {value}
+        {suffix ? <Text variant="title" color={colors.textMuted}>{` ${suffix}`}</Text> : null}
+      </Text>
+      {foot ? (
+        <Text variant="small" color={colors.textSubtle} numberOfLines={1}>
+          {foot}
         </Text>
-        {foot ? (
-          <Text variant="small" color={colors.textSubtle} numberOfLines={1}>
-            {foot}
-          </Text>
-        ) : null}
-      </View>
+      ) : null}
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   card: { borderRadius: radii.xl, borderWidth: 1, padding: 20, overflow: 'hidden', shadowOpacity: 0.28, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 6 },
-  bib: { flex: 1, backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.line, overflow: 'hidden' },
-  band: { height: 34, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 8 },
-  hole: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.bg },
+  bib: { flex: 1, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.lineStrong, overflow: 'hidden', padding: 16, gap: 6, shadowOpacity: 0.3, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 5 },
+  bibHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  bibDot: { width: 8, height: 8, borderRadius: 4 },
   bandText: { flex: 1 },
-  tear: { borderTopWidth: 2, borderStyle: 'dashed', borderColor: colors.lineStrong },
-  bibBody: { paddingHorizontal: 14, paddingTop: 10, paddingBottom: 12, gap: 2 },
-  bibValue: { fontSize: 38, lineHeight: 42 },
+  bibValue: { fontSize: 42, lineHeight: 46 },
 })

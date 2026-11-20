@@ -9,7 +9,7 @@ import { postWorkoutTip } from '../../lib/nutrition'
 import { buildWeekPlan, DAY_SHORT, todayIndex, type PlanItem } from '../../lib/weeklyPlan'
 import { useAuth } from '../../state/auth'
 import { useData } from '../../state/data'
-import { colors, fonts, radii } from '../../theme'
+import { colors, fonts } from '../../theme'
 import { Button } from '../../ui/Button'
 import { BibTile, Card } from '../../ui/Card'
 import { Meter } from '../../ui/Charts'
@@ -170,15 +170,15 @@ const styles = StyleSheet.create({
   restCard: { gap: 10, padding: 14 },
   daysWrap: { flexGrow: 0, marginHorizontal: -20 },
   days: { paddingHorizontal: 20, gap: 8 },
-  day: { width: 54, height: 72, borderRadius: radii.md, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', gap: 8 },
-  dayOn: { backgroundColor: colors.cobalt, borderColor: colors.cobalt },
+  day: { width: 58, height: 82, borderRadius: 29, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', gap: 8 },
+  dayOn: { backgroundColor: colors.cobalt, borderColor: colors.cobalt, shadowColor: '#19e3a1', shadowOpacity: 0.6, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 8 },
   dayToday: { borderColor: colors.vermilion },
   todayTag: { fontSize: 10, lineHeight: 12, marginTop: -4 },
   dayMark: { width: 8, height: 8, borderRadius: 2 },
   time: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  item: { gap: 10, padding: 16 },
+  item: { gap: 12, padding: 18 },
   itemTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  index: { width: 36, height: 36, borderRadius: radii.sm, backgroundColor: colors.cobaltWash, alignItems: 'center', justifyContent: 'center' },
+  index: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.cobaltWash, borderWidth: 1, borderColor: 'rgba(25,227,161,0.4)', alignItems: 'center', justifyContent: 'center' },
   tiles: { flexDirection: 'row', gap: 12 },
   water: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14 },
   meal: { gap: 12, padding: 16 },
