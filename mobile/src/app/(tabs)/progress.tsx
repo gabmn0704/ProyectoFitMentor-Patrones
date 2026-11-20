@@ -1,5 +1,5 @@
 import { router } from 'expo-router'
-import { Award, CloudUpload, Dumbbell, Flame, History } from 'lucide-react-native'
+import { Award, CloudUpload, Dumbbell, Flame } from 'lucide-react-native'
 import { useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { SyncBadge } from '../../components/SyncBadge'
@@ -11,6 +11,8 @@ import { useAchievements, useHistory, useStats } from '../../state/queries'
 import { colors, fonts, radii } from '../../theme'
 import { BibTile, Card } from '../../ui/Card'
 import { CountUp, Lanes, LineChart, Meter } from '../../ui/Charts'
+import { Mascot } from '../../ui/Mascot'
+import { PageHero } from '../../ui/PageHero'
 import { Reveal, Screen, SectionTitle } from '../../ui/Screen'
 import { EmptyState, ErrorState, ScreenSkeleton } from '../../ui/States'
 import { Text } from '../../ui/Text'
@@ -50,16 +52,21 @@ export default function Progress() {
       {fromLocal ? <Text variant="small" color={colors.textSubtle}>Sin conexión: se muestran las sesiones guardadas en el teléfono.</Text> : null}
 
       <Reveal index={0}>
-        <View style={styles.streak}>
-          <Flame size={30} color={colors.vermilion} fill={colors.vermilion} />
-          <View style={styles.flex}>
-            <Text variant="label" color={colors.textMuted}>Racha actual</Text>
-            <View style={styles.streakRow}>
-              <CountUp value={stats.streakDays} style={styles.streakNumber} />
-              <Text variant="title" color={colors.textMuted}>{stats.streakDays === 1 ? 'día' : 'días'}</Text>
+        <PageHero
+          state={empty ? 'idle' : stats.streakDays >= 3 ? 'cheer' : stats.streakDays === 0 ? 'worried' : 'wave'}
+          message={empty ? 'Aquí verás tu avance. Empecemos con una sesión.' : stats.streakDays >= 3 ? `${stats.streakDays} días seguidos. Esa constancia se nota.` : stats.streakDays === 0 ? 'Sin racha hoy. Una sesión corta la reactiva.' : 'Vas bien. Mañana sumamos otro día.'}
+        >
+          <View style={styles.streak}>
+            <Flame size={30} color={colors.vermilion} fill={colors.vermilion} />
+            <View style={styles.flex}>
+              <Text variant="label" color={colors.textMuted}>Racha actual</Text>
+              <View style={styles.streakRow}>
+                <CountUp value={stats.streakDays} style={styles.streakNumber} />
+                <Text variant="title" color={colors.textMuted}>{stats.streakDays === 1 ? 'día' : 'días'}</Text>
+              </View>
             </View>
           </View>
-        </View>
+        </PageHero>
       </Reveal>
 
       <Reveal index={1} style={styles.tiles}>
@@ -72,7 +79,7 @@ export default function Progress() {
       </Reveal>
 
       {empty ? (
-        <EmptyState icon={<History size={26} color={colors.textMuted} />} title="Sin sesiones todavía" hint="Termina tu primer entrenamiento con la cámara y lo verás aquí." action={{ label: 'Ir a entrenar', onPress: () => router.navigate('/train') }} />
+        <EmptyState icon={<Mascot state="rest" size={72} />} title="Sin sesiones todavía" hint="Termina tu primer entrenamiento con la cámara y lo verás aquí." action={{ label: 'Ir a entrenar', onPress: () => router.navigate('/train') }} />
       ) : (
         <>
           <Reveal index={3} style={styles.block}>
@@ -154,7 +161,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   block: { gap: 12 },
   tiles: { flexDirection: 'row', gap: 12 },
-  streak: { flexDirection: 'row', alignItems: 'center', gap: 16, backgroundColor: colors.field, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.line, padding: 20 },
+  streak: { flexDirection: 'row', alignItems: 'center', gap: 16, backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.line, padding: 16 },
   streakRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
   streakNumber: { fontSize: 56, lineHeight: 60 },
   list: { gap: 16 },
