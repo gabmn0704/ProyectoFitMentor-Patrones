@@ -7,7 +7,11 @@ export type PoseAnalysis = {
   kneeAngle: number | null
   alignment: number | null
   feedback: string
+  /** Tipo de corrección concreta (null = técnica correcta o solo una indicación de fase). */
+  correction: CorrectionKind | null
 }
+
+export type CorrectionKind = 'too_deep' | 'alignment' | 'hips' | 'back_rounded'
 
 const minimumConfidence = 0.28
 
@@ -77,14 +81,23 @@ export function analyzePose(points: PosePoint[], exercise: Exercise): PoseAnalys
   }
 
   let feedback = 'Buen control. Mantén el movimiento fluido.'
+  let correction: CorrectionKind | null = null
   if ((exercise === 'squat' || exercise === 'lunge') && kneeAngle !== null) {
     feedback = kneeAngle > 145 ? 'Inicia el descenso llevando la cadera atrás.' : kneeAngle < 55 ? 'Reduce la profundidad y conserva el control.' : 'Rodillas flexionadas. Empuja el suelo para subir.'
+    if (kneeAngle < 55) correction = 'too_deep'
   } else if (exercise === 'push_up') {
-    feedback = (alignment ?? 0) > 0.13 ? 'Alinea hombros, cadera y tobillos.' : (elbowAngle ?? 180) < 75 ? 'Empuja el suelo y extiende los brazos.' : 'Cuerpo firme. Desciende con control.'
+    if ((alignment ?? 0) > 0.13) {
+      feedback = 'Alinea hombros, cadera y tobillos.'
+      correction = 'alignment'
+    } else feedback = (elbowAngle ?? 180) < 75 ? 'Empuja el suelo y extiende los brazos.' : 'Cuerpo firme. Desciende con control.'
   } else if (exercise === 'plank') {
-    feedback = (alignment ?? 0) > 0.12 ? 'Ajusta la cadera para alinear el cuerpo.' : 'Buena línea corporal. Respira con calma.'
+    if ((alignment ?? 0) > 0.12) {
+      feedback = 'Ajusta la cadera para alinear el cuerpo.'
+      correction = 'hips'
+    } else feedback = 'Buena línea corporal. Respira con calma.'
   } else if (exercise === 'deadlift') {
     feedback = (hipAngle ?? 180) < 75 ? 'Reduce la inclinación y mantén la espalda firme.' : (hipAngle ?? 0) > 155 ? 'Lleva la cadera atrás para iniciar la bisagra.' : 'Mantén la espalda firme y vuelve extendiendo la cadera.'
+    if ((hipAngle ?? 180) < 75) correction = 'back_rounded'
   }
 
   return {
@@ -93,6 +106,7 @@ export function analyzePose(points: PosePoint[], exercise: Exercise): PoseAnalys
     kneeAngle: kneeAngle === null ? null : Math.round(kneeAngle),
     alignment,
     feedback,
+    correction,
   }
 }
 
